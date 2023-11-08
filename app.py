@@ -10,6 +10,11 @@ import io
 import seaborn as sns
 import plotly.graph_objects as go
 import matplotlib as plt
+import os
+import streamlit as st
+from pandasai import SmartDataframe
+from pandasai.llm.openai import OpenAI
+
 
 # Set page configuration
 st.set_page_config(
@@ -149,7 +154,43 @@ def eda_tab():
             title = 'Churn rate by customer payment method')
     st.plotly_chart(fig)
 
+def chat_tab():
+    plt.use('TkAgg')
 
+    API_KEY = st.secrets['OPENAI_API_KEY']
+    llm = OpenAI(api_token=API_KEY)
+
+    df = pd.read_excel('data.xlsx')
+    df = SmartDataframe(df, config={'llm':llm})
+    with st.sidebar:
+        st.subheader('Dataset information')
+        info = pd.DataFrame(
+            {
+                'Rows' : [df.shape[0]],
+                'Columns': [df.shape[1]]
+            }
+        )
+        st.dataframe(info, use_container_width=True, hide_index=True)
+
+        missing_values = pd.DataFrame(
+            df.isnull().sum().to_frame('Nulls').reset_index()
+        ).rename(columns={'index':'Column'})
+
+        st.dataframe(missing_values, use_container_width=True, hide_index=True)
+
+    nrows = st.number_input("Show number of rows", min_value=1, value=5, step=1)
+    st.dataframe(df.head(nrows), use_container_width=True)
+
+    with st.form("prompt_area"):
+        prompt = st.text_input("Ask here")
+        submitted = st.form_submit_button("Submit")
+    
+    if submitted:
+        if prompt:
+            with st.spinner("Generating answer, please wait..."):
+                st.write(df.chat(prompt))
+        else:
+            st.write("Please enter a request.")
 # Create the sidebar for content selection
 selected_tab = st.sidebar.selectbox("Select a tab:", ["EDA", "Chat", "Statistic Test", "Model"])
 
