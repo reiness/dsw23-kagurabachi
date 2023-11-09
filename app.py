@@ -162,24 +162,28 @@ def chat_tab():
 
     df = pd.read_excel('data.xlsx')
     df = SmartDataframe(df, config={'llm':llm})
-    with st.sidebar:
-        st.subheader('Dataset information')
-        info = pd.DataFrame(
-            {
-                'Rows' : [df.shape[0]],
-                'Columns': [df.shape[1]]
-            }
-        )
-        st.dataframe(info, use_container_width=True, hide_index=True)
 
-        missing_values = pd.DataFrame(
-            df.isnull().sum().to_frame('Nulls').reset_index()
-        ).rename(columns={'index':'Column'})
+    st.header("Hello, I'm Kagura-Bot!")
+    st.image('maid.png',width=400)
+    st.write("Ask me Anything ^ ^")
+    # with st.sidebar:
+    #     st.subheader('Dataset information')
+    #     info = pd.DataFrame(
+    #         {
+    #             'Rows' : [df.shape[0]],
+    #             'Columns': [df.shape[1]]
+    #         }
+    #     )
+    #     st.dataframe(info, use_container_width=True, hide_index=True)
 
-        st.dataframe(missing_values, use_container_width=True, hide_index=True)
+    #     missing_values = pd.DataFrame(
+    #         df.isnull().sum().to_frame('Nulls').reset_index()
+    #     ).rename(columns={'index':'Column'})
 
-    nrows = st.number_input("Show number of rows", min_value=1, value=5, step=1)
-    st.dataframe(df.head(nrows), use_container_width=True)
+    #     st.dataframe(missing_values, use_container_width=True, hide_index=True)
+
+    # nrows = st.number_input("Show number of rows", min_value=1, value=5, step=1)
+    # st.dataframe(df.head(nrows), use_container_width=True)
 
     with st.form("prompt_area"):
         prompt = st.text_input("Ask here")

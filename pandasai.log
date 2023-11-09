@@ -466,3 +466,452 @@ def analyze_data(dfs: list[pd.DataFrame]) ->dict:
         ```
 2023-11-08 18:38:08 [INFO] Answer: {'type': 'string', 'value': 'Customer ID, Tenure Months, Location, Device Class, Games Product, Music Product, Education Product, Call Center, Video Product, Use MyApp, Payment Method, Monthly Purchase (Thou. IDR), Churn Label, Longitude, Latitude, CLTV (Predicted Thou. IDR)'}
 2023-11-08 18:38:08 [INFO] Executed in: 26.181851625442505s
+2023-11-09 08:12:03 [INFO] Question: what are the unique classes in the Device Classes
+2023-11-09 08:12:03 [INFO] Running PandasAI with openai LLM...
+2023-11-09 08:12:03 [INFO] Prompt ID: eee13fd8-0e6f-4c68-9e4f-28ec866356df
+2023-11-09 08:12:04 [INFO] Using prompt: You are provided with the following pandas DataFrames:
+
+<dataframe>
+Dataframe dfs[0], with 7043 rows and 16 columns.
+This is the metadata of the dataframe dfs[0]:
+Customer ID,Tenure Months,Location,Device Class,Games Product,Music Product,Education Product,Call Center,Video Product,Use MyApp,Payment Method,Monthly Purchase (Thou. IDR),Churn Label,Longitude,Latitude,CLTV (Predicted Thou. IDR)
+2,8,Jakarta,High End,No,No,Yes,No,Yes,Yes,Pulsa,129.54500000000002,Yes,106.816666,-6.2,6983.6
+0,2,Jakarta,Mid End,Yes,Yes,No,No,No,No,Digital Wallet,70.00500000000001,Yes,106.816666,-6.2,4210.7
+1,2,Jakarta,High End,No,No,No,No,No,No,Pulsa,91.91000000000001,Yes,106.816666,-6.2,3511.3
+</dataframe>
+
+<conversation>
+User: what are the unique classes in the Device Classes
+</conversation>
+
+This is the initial python function. Do not change the params. Given the context, use the right dataframes.
+```python
+# TODO import all the dependencies required
+import pandas as pd
+
+def analyze_data(dfs: list[pd.DataFrame]) -> dict:
+    """
+    Analyze the data, using the provided dataframes (`dfs`).
+    1. Prepare: Preprocessing and cleaning data if necessary
+    2. Process: Manipulating data for analysis (grouping, filtering, aggregating, etc.)
+    3. Analyze: Conducting the actual analysis (if the user asks to plot a chart you must save it as an image in temp_chart.png and not show the chart.)
+    If the user requests to create a chart, utilize the Python matplotlib library to generate high-quality graphics that will be saved directly to a file.
+    At the end, return a dictionary of:
+    - type (possible values "string", "number", "dataframe", "plot")
+    - value (can be a string, a dataframe or the path of the plot, NOT a dictionary)
+    Examples: 
+        { "type": "string", "value": f"The highest salary is {highest_salary}." }
+        or
+        { "type": "number", "value": 125 }
+        or
+        { "type": "dataframe", "value": pd.DataFrame({...}) }
+        or
+        { "type": "plot", "value": "temp_chart.png" }
+    """
+```
+
+Take a deep breath and reason step-by-step. Act as a senior data analyst.
+In the answer, you must never write the "technical" names of the tables.
+Based on the last message in the conversation:
+- return the updated analyze_data function wrapped within ```python ```
+2023-11-09 08:12:32 [INFO] Code generated:
+```
+# TODO import all the dependencies required
+import pandas as pd
+
+def analyze_data(dfs: list[pd.DataFrame]) -> dict:
+    """
+    Analyze the data, using the provided dataframes (`dfs`).
+    1. Prepare: Preprocessing and cleaning data if necessary
+    2. Process: Manipulating data for analysis (grouping, filtering, aggregating, etc.)
+    3. Analyze: Conducting the actual analysis (if the user asks to plot a chart you must save it as an image in temp_chart.png and not show the chart.)
+    If the user requests to create a chart, utilize the Python matplotlib library to generate high-quality graphics that will be saved directly to a file.
+    At the end, return a dictionary of:
+    - type (possible values "string", "number", "dataframe", "plot")
+    - value (can be a string, a dataframe or the path of the plot, NOT a dictionary)
+    Examples: 
+        { "type": "string", "value": f"The highest salary is {highest_salary}." }
+        or
+        { "type": "number", "value": 125 }
+        or
+        { "type": "dataframe", "value": pd.DataFrame({...}) }
+        or
+        { "type": "plot", "value": "temp_chart.png" }
+    """
+    # Extract the Device Class column from the dataframe
+    device_classes = dfs[0]['Device Class']
+    
+    # Get the unique classes
+    unique_classes = device_classes.unique()
+    
+    # Convert the unique classes to a string
+    unique_classes_str = ', '.join(unique_classes)
+    
+    # Return the result as a string
+    return {"type": "string", "value": f"The unique classes in the Device Classes are: {unique_classes_str}."}
+```
+
+2023-11-09 08:12:32 [INFO] Saving charts to D:\coding-project\dsw-telkom\temp_chart.png
+2023-11-09 08:12:32 [INFO] 
+Code running:
+```
+def analyze_data(dfs: list[pd.DataFrame]) ->dict:
+    """
+    Analyze the data, using the provided dataframes (`dfs`).
+    1. Prepare: Preprocessing and cleaning data if necessary
+    2. Process: Manipulating data for analysis (grouping, filtering, aggregating, etc.)
+    3. Analyze: Conducting the actual analysis (if the user asks to plot a chart you must save it as an image in D:/coding-project/dsw-telkom/temp_chart.png and not show the chart.)
+    If the user requests to create a chart, utilize the Python matplotlib library to generate high-quality graphics that will be saved directly to a file.
+    At the end, return a dictionary of:
+    - type (possible values "string", "number", "dataframe", "plot")
+    - value (can be a string, a dataframe or the path of the plot, NOT a dictionary)
+    Examples: 
+        { "type": "string", "value": f"The highest salary is {highest_salary}." }
+        or
+        { "type": "number", "value": 125 }
+        or
+        { "type": "dataframe", "value": pd.DataFrame({...}) }
+        or
+        { "type": "plot", "value": "D:/coding-project/dsw-telkom/temp_chart.png" }
+    """
+    device_classes = dfs[0]['Device Class']
+    unique_classes = device_classes.unique()
+    unique_classes_str = ', '.join(unique_classes)
+    return {'type': 'string', 'value': f'The unique classes in the Device Classes are: {unique_classes_str}.'}
+        ```
+2023-11-09 08:12:32 [INFO] Answer: {'type': 'string', 'value': 'The unique classes in the Device Classes are: Mid End, High End, Low End.'}
+2023-11-09 08:12:32 [INFO] Executed in: 28.371264696121216s
+2023-11-09 08:13:15 [INFO] Question: make me a barplot visualization out of Device Class column
+2023-11-09 08:13:15 [INFO] Running PandasAI with openai LLM...
+2023-11-09 08:13:15 [INFO] Prompt ID: 6ce9ed59-465b-4c27-9e42-27bb2344fdb1
+2023-11-09 08:13:15 [INFO] Using prompt: You are provided with the following pandas DataFrames:
+
+<dataframe>
+Dataframe dfs[0], with 7043 rows and 16 columns.
+This is the metadata of the dataframe dfs[0]:
+Customer ID,Tenure Months,Location,Device Class,Games Product,Music Product,Education Product,Call Center,Video Product,Use MyApp,Payment Method,Monthly Purchase (Thou. IDR),Churn Label,Longitude,Latitude,CLTV (Predicted Thou. IDR)
+0,2,Jakarta,Mid End,Yes,Yes,No,No,No,No,Digital Wallet,70.00500000000001,Yes,106.816666,-6.2,4210.7
+1,2,Jakarta,High End,No,No,No,No,No,No,Pulsa,91.91000000000001,Yes,106.816666,-6.2,3511.3
+2,8,Jakarta,High End,No,No,Yes,No,Yes,Yes,Pulsa,129.54500000000002,Yes,106.816666,-6.2,6983.6
+</dataframe>
+
+<conversation>
+User: make me a barplot visualization out of Device Class column
+</conversation>
+
+This is the initial python function. Do not change the params. Given the context, use the right dataframes.
+```python
+# TODO import all the dependencies required
+import pandas as pd
+
+def analyze_data(dfs: list[pd.DataFrame]) -> dict:
+    """
+    Analyze the data, using the provided dataframes (`dfs`).
+    1. Prepare: Preprocessing and cleaning data if necessary
+    2. Process: Manipulating data for analysis (grouping, filtering, aggregating, etc.)
+    3. Analyze: Conducting the actual analysis (if the user asks to plot a chart you must save it as an image in temp_chart.png and not show the chart.)
+    If the user requests to create a chart, utilize the Python matplotlib library to generate high-quality graphics that will be saved directly to a file.
+    At the end, return a dictionary of:
+    - type (possible values "string", "number", "dataframe", "plot")
+    - value (can be a string, a dataframe or the path of the plot, NOT a dictionary)
+    Examples: 
+        { "type": "string", "value": f"The highest salary is {highest_salary}." }
+        or
+        { "type": "number", "value": 125 }
+        or
+        { "type": "dataframe", "value": pd.DataFrame({...}) }
+        or
+        { "type": "plot", "value": "temp_chart.png" }
+    """
+```
+
+Take a deep breath and reason step-by-step. Act as a senior data analyst.
+In the answer, you must never write the "technical" names of the tables.
+Based on the last message in the conversation:
+- return the updated analyze_data function wrapped within ```python ```
+2023-11-09 08:13:16 [INFO] error_code=invalid_api_key error_message='Incorrect API key provided: sk-tA5PW***************************************xWId. You can find your API key at https://platform.openai.com/account/api-keys.' error_param=None error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+2023-11-09 08:14:23 [INFO] Question: What is the max amount of the Tenure Months
+2023-11-09 08:14:23 [INFO] Running PandasAI with openai LLM...
+2023-11-09 08:14:23 [INFO] Prompt ID: 20bf1b8a-3ef4-4e62-9767-09116a7aa116
+2023-11-09 08:14:23 [INFO] Using prompt: You are provided with the following pandas DataFrames:
+
+<dataframe>
+Dataframe dfs[0], with 7043 rows and 16 columns.
+This is the metadata of the dataframe dfs[0]:
+Customer ID,Tenure Months,Location,Device Class,Games Product,Music Product,Education Product,Call Center,Video Product,Use MyApp,Payment Method,Monthly Purchase (Thou. IDR),Churn Label,Longitude,Latitude,CLTV (Predicted Thou. IDR)
+2,8,Jakarta,High End,No,No,Yes,No,Yes,Yes,Pulsa,129.54500000000002,Yes,106.816666,-6.2,6983.6
+0,2,Jakarta,Mid End,Yes,Yes,No,No,No,No,Digital Wallet,70.00500000000001,Yes,106.816666,-6.2,4210.7
+1,2,Jakarta,High End,No,No,No,No,No,No,Pulsa,91.91000000000001,Yes,106.816666,-6.2,3511.3
+</dataframe>
+
+<conversation>
+User: What is the max amount of the Tenure Months
+</conversation>
+
+This is the initial python function. Do not change the params. Given the context, use the right dataframes.
+```python
+# TODO import all the dependencies required
+import pandas as pd
+
+def analyze_data(dfs: list[pd.DataFrame]) -> dict:
+    """
+    Analyze the data, using the provided dataframes (`dfs`).
+    1. Prepare: Preprocessing and cleaning data if necessary
+    2. Process: Manipulating data for analysis (grouping, filtering, aggregating, etc.)
+    3. Analyze: Conducting the actual analysis (if the user asks to plot a chart you must save it as an image in temp_chart.png and not show the chart.)
+    If the user requests to create a chart, utilize the Python matplotlib library to generate high-quality graphics that will be saved directly to a file.
+    At the end, return a dictionary of:
+    - type (possible values "string", "number", "dataframe", "plot")
+    - value (can be a string, a dataframe or the path of the plot, NOT a dictionary)
+    Examples: 
+        { "type": "string", "value": f"The highest salary is {highest_salary}." }
+        or
+        { "type": "number", "value": 125 }
+        or
+        { "type": "dataframe", "value": pd.DataFrame({...}) }
+        or
+        { "type": "plot", "value": "temp_chart.png" }
+    """
+```
+
+Take a deep breath and reason step-by-step. Act as a senior data analyst.
+In the answer, you must never write the "technical" names of the tables.
+Based on the last message in the conversation:
+- return the updated analyze_data function wrapped within ```python ```
+2023-11-09 08:14:24 [INFO] error_code=invalid_api_key error_message='Incorrect API key provided: sk-tA5PW***************************************xWId. You can find your API key at https://platform.openai.com/account/api-keys.' error_param=None error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+2023-11-09 08:32:58 [INFO] Question: how much columns are there?
+2023-11-09 08:32:58 [INFO] Running PandasAI with openai LLM...
+2023-11-09 08:32:58 [INFO] Prompt ID: 261c7441-806c-465c-a45c-57bbd48c5195
+2023-11-09 08:32:58 [INFO] Using prompt: You are provided with the following pandas DataFrames:
+
+<dataframe>
+Dataframe dfs[0], with 7043 rows and 16 columns.
+This is the metadata of the dataframe dfs[0]:
+Customer ID,Tenure Months,Location,Device Class,Games Product,Music Product,Education Product,Call Center,Video Product,Use MyApp,Payment Method,Monthly Purchase (Thou. IDR),Churn Label,Longitude,Latitude,CLTV (Predicted Thou. IDR)
+0,2,Jakarta,Mid End,Yes,Yes,No,No,No,No,Digital Wallet,70.00500000000001,Yes,106.816666,-6.2,4210.7
+1,2,Jakarta,High End,No,No,No,No,No,No,Pulsa,91.91000000000001,Yes,106.816666,-6.2,3511.3
+2,8,Jakarta,High End,No,No,Yes,No,Yes,Yes,Pulsa,129.54500000000002,Yes,106.816666,-6.2,6983.6
+</dataframe>
+
+<conversation>
+User: how much columns are there?
+</conversation>
+
+This is the initial python function. Do not change the params. Given the context, use the right dataframes.
+```python
+# TODO import all the dependencies required
+import pandas as pd
+
+def analyze_data(dfs: list[pd.DataFrame]) -> dict:
+    """
+    Analyze the data, using the provided dataframes (`dfs`).
+    1. Prepare: Preprocessing and cleaning data if necessary
+    2. Process: Manipulating data for analysis (grouping, filtering, aggregating, etc.)
+    3. Analyze: Conducting the actual analysis (if the user asks to plot a chart you must save it as an image in temp_chart.png and not show the chart.)
+    If the user requests to create a chart, utilize the Python matplotlib library to generate high-quality graphics that will be saved directly to a file.
+    At the end, return a dictionary of:
+    - type (possible values "string", "number", "dataframe", "plot")
+    - value (can be a string, a dataframe or the path of the plot, NOT a dictionary)
+    Examples: 
+        { "type": "string", "value": f"The highest salary is {highest_salary}." }
+        or
+        { "type": "number", "value": 125 }
+        or
+        { "type": "dataframe", "value": pd.DataFrame({...}) }
+        or
+        { "type": "plot", "value": "temp_chart.png" }
+    """
+```
+
+Take a deep breath and reason step-by-step. Act as a senior data analyst.
+In the answer, you must never write the "technical" names of the tables.
+Based on the last message in the conversation:
+- return the updated analyze_data function wrapped within ```python ```
+2023-11-09 08:33:44 [INFO] Code generated:
+```
+# TODO import all the dependencies required
+import pandas as pd
+
+def analyze_data(dfs: list[pd.DataFrame]) -> dict:
+    """
+    Analyze the data, using the provided dataframes (`dfs`).
+    1. Prepare: Preprocessing and cleaning data if necessary
+    2. Process: Manipulating data for analysis (grouping, filtering, aggregating, etc.)
+    3. Analyze: Conducting the actual analysis (if the user asks to plot a chart you must save it as an image in temp_chart.png and not show the chart.)
+    If the user requests to create a chart, utilize the Python matplotlib library to generate high-quality graphics that will be saved directly to a file.
+    At the end, return a dictionary of:
+    - type (possible values "string", "number", "dataframe", "plot")
+    - value (can be a string, a dataframe or the path of the plot, NOT a dictionary)
+    Examples: 
+        { "type": "string", "value": f"The highest salary is {highest_salary}." }
+        or
+        { "type": "number", "value": 125 }
+        or
+        { "type": "dataframe", "value": pd.DataFrame({...}) }
+        or
+        { "type": "plot", "value": "temp_chart.png" }
+    """
+    
+    # Get the number of columns in the dataframe
+    num_columns = len(dfs[0].columns)
+    
+    # Return the result as a string
+    result = f"The dataframe has {num_columns} columns."
+    return {"type": "string", "value": result}
+```
+
+2023-11-09 08:33:44 [INFO] Saving charts to D:\coding-project\dsw-telkom\temp_chart.png
+2023-11-09 08:33:44 [INFO] 
+Code running:
+```
+def analyze_data(dfs: list[pd.DataFrame]) ->dict:
+    """
+    Analyze the data, using the provided dataframes (`dfs`).
+    1. Prepare: Preprocessing and cleaning data if necessary
+    2. Process: Manipulating data for analysis (grouping, filtering, aggregating, etc.)
+    3. Analyze: Conducting the actual analysis (if the user asks to plot a chart you must save it as an image in D:/coding-project/dsw-telkom/temp_chart.png and not show the chart.)
+    If the user requests to create a chart, utilize the Python matplotlib library to generate high-quality graphics that will be saved directly to a file.
+    At the end, return a dictionary of:
+    - type (possible values "string", "number", "dataframe", "plot")
+    - value (can be a string, a dataframe or the path of the plot, NOT a dictionary)
+    Examples: 
+        { "type": "string", "value": f"The highest salary is {highest_salary}." }
+        or
+        { "type": "number", "value": 125 }
+        or
+        { "type": "dataframe", "value": pd.DataFrame({...}) }
+        or
+        { "type": "plot", "value": "D:/coding-project/dsw-telkom/temp_chart.png" }
+    """
+    num_columns = len(dfs[0].columns)
+    result = f'The dataframe has {num_columns} columns.'
+    return {'type': 'string', 'value': result}
+        ```
+2023-11-09 08:33:44 [INFO] Answer: {'type': 'string', 'value': 'The dataframe has 16 columns.'}
+2023-11-09 08:33:44 [INFO] Executed in: 45.72895169258118s
+2023-11-09 08:34:23 [INFO] Question: how many unique classes in the Device Class column, visualize it using barplot !
+2023-11-09 08:34:23 [INFO] Running PandasAI with openai LLM...
+2023-11-09 08:34:23 [INFO] Prompt ID: dc3ac141-74f4-4342-9b2d-d45dfefab280
+2023-11-09 08:34:23 [INFO] Using prompt: You are provided with the following pandas DataFrames:
+
+<dataframe>
+Dataframe dfs[0], with 7043 rows and 16 columns.
+This is the metadata of the dataframe dfs[0]:
+Customer ID,Tenure Months,Location,Device Class,Games Product,Music Product,Education Product,Call Center,Video Product,Use MyApp,Payment Method,Monthly Purchase (Thou. IDR),Churn Label,Longitude,Latitude,CLTV (Predicted Thou. IDR)
+2,8,Jakarta,High End,No,No,Yes,No,Yes,Yes,Pulsa,129.54500000000002,Yes,106.816666,-6.2,6983.6
+1,2,Jakarta,High End,No,No,No,No,No,No,Pulsa,91.91000000000001,Yes,106.816666,-6.2,3511.3
+0,2,Jakarta,Mid End,Yes,Yes,No,No,No,No,Digital Wallet,70.00500000000001,Yes,106.816666,-6.2,4210.7
+</dataframe>
+
+<conversation>
+User: how many unique classes in the Device Class column, visualize it using barplot !
+</conversation>
+
+This is the initial python function. Do not change the params. Given the context, use the right dataframes.
+```python
+# TODO import all the dependencies required
+import pandas as pd
+
+def analyze_data(dfs: list[pd.DataFrame]) -> dict:
+    """
+    Analyze the data, using the provided dataframes (`dfs`).
+    1. Prepare: Preprocessing and cleaning data if necessary
+    2. Process: Manipulating data for analysis (grouping, filtering, aggregating, etc.)
+    3. Analyze: Conducting the actual analysis (if the user asks to plot a chart you must save it as an image in temp_chart.png and not show the chart.)
+    If the user requests to create a chart, utilize the Python matplotlib library to generate high-quality graphics that will be saved directly to a file.
+    At the end, return a dictionary of:
+    - type (possible values "string", "number", "dataframe", "plot")
+    - value (can be a string, a dataframe or the path of the plot, NOT a dictionary)
+    Examples: 
+        { "type": "string", "value": f"The highest salary is {highest_salary}." }
+        or
+        { "type": "number", "value": 125 }
+        or
+        { "type": "dataframe", "value": pd.DataFrame({...}) }
+        or
+        { "type": "plot", "value": "temp_chart.png" }
+    """
+```
+
+Take a deep breath and reason step-by-step. Act as a senior data analyst.
+In the answer, you must never write the "technical" names of the tables.
+Based on the last message in the conversation:
+- return the updated analyze_data function wrapped within ```python ```
+2023-11-09 08:35:13 [INFO] Code generated:
+```
+# TODO import all the dependencies required
+import pandas as pd
+import matplotlib.pyplot as plt
+
+def analyze_data(dfs: list[pd.DataFrame]) -> dict:
+    """
+    Analyze the data, using the provided dataframes (`dfs`).
+    1. Prepare: Preprocessing and cleaning data if necessary
+    2. Process: Manipulating data for analysis (grouping, filtering, aggregating, etc.)
+    3. Analyze: Conducting the actual analysis (if the user asks to plot a chart you must save it as an image in temp_chart.png and not show the chart.)
+    If the user requests to create a chart, utilize the Python matplotlib library to generate high-quality graphics that will be saved directly to a file.
+    At the end, return a dictionary of:
+    - type (possible values "string", "number", "dataframe", "plot")
+    - value (can be a string, a dataframe or the path of the plot, NOT a dictionary)
+    Examples: 
+        { "type": "string", "value": f"The highest salary is {highest_salary}." }
+        or
+        { "type": "number", "value": 125 }
+        or
+        { "type": "dataframe", "value": pd.DataFrame({...}) }
+        or
+        { "type": "plot", "value": "temp_chart.png" }
+    """
+    # Prepare: No preprocessing or cleaning needed
+    
+    # Process: Count unique classes in the Device Class column
+    device_class_counts = dfs[0]['Device Class'].value_counts()
+    
+    # Analyze: Visualize the counts using a bar plot
+    plt.figure(figsize=(10, 6))
+    device_class_counts.plot(kind='bar')
+    plt.xlabel('Device Class')
+    plt.ylabel('Count')
+    plt.title('Number of Customers by Device Class')
+    plt.savefig('temp_chart.png')
+    plt.close()
+    
+    # Return the path of the plot
+    return {"type": "plot", "value": "temp_chart.png"}
+```
+
+2023-11-09 08:35:13 [INFO] Saving charts to D:\coding-project\dsw-telkom\temp_chart.png
+2023-11-09 08:35:13 [INFO] 
+Code running:
+```
+def analyze_data(dfs: list[pd.DataFrame]) ->dict:
+    """
+    Analyze the data, using the provided dataframes (`dfs`).
+    1. Prepare: Preprocessing and cleaning data if necessary
+    2. Process: Manipulating data for analysis (grouping, filtering, aggregating, etc.)
+    3. Analyze: Conducting the actual analysis (if the user asks to plot a chart you must save it as an image in D:/coding-project/dsw-telkom/temp_chart.png and not show the chart.)
+    If the user requests to create a chart, utilize the Python matplotlib library to generate high-quality graphics that will be saved directly to a file.
+    At the end, return a dictionary of:
+    - type (possible values "string", "number", "dataframe", "plot")
+    - value (can be a string, a dataframe or the path of the plot, NOT a dictionary)
+    Examples: 
+        { "type": "string", "value": f"The highest salary is {highest_salary}." }
+        or
+        { "type": "number", "value": 125 }
+        or
+        { "type": "dataframe", "value": pd.DataFrame({...}) }
+        or
+        { "type": "plot", "value": "D:/coding-project/dsw-telkom/temp_chart.png" }
+    """
+    device_class_counts = dfs[0]['Device Class'].value_counts()
+    plt.figure(figsize=(10, 6))
+    device_class_counts.plot(kind='bar')
+    plt.xlabel('Device Class')
+    plt.ylabel('Count')
+    plt.title('Number of Customers by Device Class')
+    plt.savefig('D:/coding-project/dsw-telkom/temp_chart.png')
+    plt.close()
+    return {'type': 'plot', 'value': 'D:/coding-project/dsw-telkom/temp_chart.png'}
+        ```
+2023-11-09 08:35:16 [INFO] Answer: {'type': 'plot', 'value': 'D:/coding-project/dsw-telkom/temp_chart.png'}
+2023-11-09 08:35:16 [INFO] Executed in: 53.12567353248596s
