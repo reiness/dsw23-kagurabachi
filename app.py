@@ -25,8 +25,13 @@ st.set_page_config(
 
 # Define the EDA tab
 def eda_tab():
-    st.write("Exploratory Data Analysis")
+    st.header("Exploratory Data Analysis")
+    st.write('---')
     data = pd.read_excel('data.xlsx')
+
+    st.subheader("DataFrame Info")
+    nrows = st.number_input("Show number of rows", min_value=1, value=5, step=1)
+    st.dataframe(data.head(nrows), use_container_width=True)
     
     # Capture the .info() output into a string
     buffer = io.StringIO()
@@ -35,8 +40,7 @@ def eda_tab():
     buffer.close()
     
     # Display .info() of the DataFrame as Markdown
-    st.subheader("DataFrame Info")
-    with st.expander("Click here to see the DataFrame information"):
+    with st.expander("Click here to see the detailed information"):
         st.markdown(f"```{info_text}```", unsafe_allow_html=True)
 
     st.subheader("General Churn Rate")
@@ -136,6 +140,10 @@ def eda_tab():
              facet_col = 'Churn Label',
              names='Device Class',
             title = "What type of clients' devices who left the service?")
+    fig.update_layout(
+        width=1000,  # Adjust the width
+        height=800,  # Adjust the height
+    )
     st.plotly_chart(fig)
 
     fig = px.pie(data.groupby(['Payment Method','Churn Label'])['Customer ID'].count().reset_index(), 
@@ -144,6 +152,10 @@ def eda_tab():
              names='Payment Method',
              hole = .5,
             title = "What type of clients' payment method who left the service?")
+    fig.update_layout(
+        width=1000,  # Adjust the width
+        height=800,  # Adjust the height
+    )
     st.plotly_chart(fig)
 
     fig = px.pie(data.groupby(['Payment Method','Churn Label'])['Customer ID'].count().reset_index(), 
@@ -152,6 +164,10 @@ def eda_tab():
             facet_col = 'Payment Method',
             color = 'Churn Label',
             title = 'Churn rate by customer payment method')
+    fig.update_layout(
+        width=1000,  # Adjust the width
+        height=800,  # Adjust the height
+    )
     st.plotly_chart(fig)
 
 def chat_tab():
@@ -165,11 +181,10 @@ def chat_tab():
 
     st.header("Hello, I'm Kagura-Bot!")
     st.image('maid.png',width=400)
-    st.write("Ask me Anything ^ ^")
     
 
     with st.form("prompt_area"):
-        prompt = st.text_input("Ask here")
+        prompt = st.text_input("Ask me anything ^ ^")
         submitted = st.form_submit_button("Submit")
     
     if submitted:
@@ -178,6 +193,16 @@ def chat_tab():
                 st.write(df.chat(prompt))
         else:
             st.write("Please enter a request.")
+
+def statistic_test_tab():
+    st.header('Statistic Tests')
+    st.write('---')
+
+
+def model_tab():
+    st.header('Model')
+    st.write('---')
+
 # Create the sidebar for content selection
 selected_tab = st.sidebar.selectbox("Select a tab:", ["EDA", "Chat", "Statistic Test", "Model"])
 
