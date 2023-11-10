@@ -228,7 +228,7 @@ def model_tab():
     numeric = ['Monthly Purchase (Thou. IDR)', 'CLTV (Predicted Thou. IDR)']
     scaler_power = PowerTransformer(method='yeo-johnson')
     X_train[numeric] = scaler_power.fit_transform(X_train[numeric])
-    X_test[numeric] = scaler_power.fit_transform(X_test[numeric])
+    X_test[numeric] = scaler_power.transform(X_test[numeric])
 
     # Apply SMOTE
     smote = SMOTEN(random_state=42, k_neighbors=3)
@@ -244,6 +244,12 @@ def model_tab():
         criterion='gini'
     )
     rf_classifier.fit(X_train_over, y_train_over)
+
+    st.write('---')
+    st.header('Classification Report of Data Test (20%)')
+    y_pred = rf_classifier.predict(X_test)
+    classification_rep = classification_report(y_test, y_pred)
+    st.text(classification_rep)
 
     st.write('---')
     st.header('Input Predict')
@@ -285,22 +291,24 @@ def model_tab():
 
     input_data[numeric] = scaler_power.transform(input_data[numeric])
 
-    # Make Prediction
-    prediction = rf_classifier.predict(input_data)
+    # Tombol Submit
+    if st.button('Submit'):
+        # Make Prediction
+        prediction = rf_classifier.predict(input_data)
 
-    st.write('---')
-    st.header('Prediction Result')
+        st.write('---')
+        st.header('Prediction Result')
 
-    # Mengubah nilai 0 menjadi 'No' dan nilai 1 menjadi 'Yes'
-    prediction_label = 'Yes' if prediction[0] == 1 else 'No'
+        # Mengubah nilai 0 menjadi 'No' dan nilai 1 menjadi 'Yes'
+        prediction_label = 'Yes' if prediction[0] == 1 else 'No'
 
-    st.write(f'The predicted Churn Label is: {prediction_label}')
+        if prediction_label == 'Yes':
+            st.markdown(f'The predicted Churn Label is: ')
+            st.success(prediction_label)
+        else:
+            st.markdown(f'The predicted Churn Label is: ')
+            st.error(prediction_label)
 
-    st.write('---')
-    st.header('Classification Report')
-    y_pred = rf_classifier.predict(X_test)
-    classification_rep = classification_report(y_test, y_pred)
-    st.text(classification_rep)
 
 
 # Create the sidebar for content selection
