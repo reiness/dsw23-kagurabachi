@@ -15,6 +15,14 @@ import streamlit as st
 from pandasai import SmartDataframe
 from pandasai.llm.openai import OpenAI
 
+#Model
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PowerTransformer
+from imblearn.over_sampling import SMOTEN
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
+
 
 # Set page configuration
 st.set_page_config(
@@ -198,10 +206,84 @@ def statistic_test_tab():
     st.header('Statistic Tests')
     st.write('---')
 
+def preprocess_data(df):
+    df.drop(columns=['Customer ID', 'Longitude', 'Latitude'], inplace=True)
+
+    le = LabelEncoder()
+
+    for col in df.columns:
+        if df[col].dtype == 'object':
+            df[col] = le.fit_transform(df[col])
+
+    return df
 
 def model_tab():
     st.header('Model')
     st.write('---')
+
+    # Load data
+    df = pd.read_excel('data.xlsx')
+
+    # Preprocess data
+    df = preprocess_data(df)
+
+    # Split data
+    X_train, X_test, y_train, y_test = train_test_split(df.drop(columns=['Churn Label']), df['Churn Label'], test_size=0.2, random_state=42, stratify=df['Churn Label'])
+
+    # Apply Power Transformer
+    numeric = ['Monthly Purchase (Thou. IDR)', 'CLTV (Predicted Thou. IDR)']
+    scaler_power = PowerTransformer(method='yeo-johnson')
+    X_train[numeric] = scaler_power.fit_transform(X_train[numeric])
+    X_test[numeric] = scaler_power.fit_transform(X_test[numeric])
+
+    # Apply SMOTE
+    smote = SMOTEN(random_state=42, k_neighbors=3)
+    X_train_over, y_train_over = smote.fit_resample(X_train, y_train)
+
+    # Train RandomForestClassifier
+    rf_classifier = RandomForestClassifier(
+        random_state=42,
+        n_estimators=1460,
+        min_samples_split=29,
+        min_samples_leaf=18,
+        max_depth=97,
+        criterion='gini'
+    )
+    rf_classifier.fit(X_train_over, y_train_over)
+
+    st.write('---')
+    st.header('Input Predict')
+    
+    # User Input for Prediction
+    monthly_purchase = st.number_input('Monthly Purchase (Thou. IDR):')
+    cltv = st.number_input('CLTV (Predicted Thou. IDR):')
+    other_features = [st.selectbox('Gender:', ['Male', 'Female']),
+                    st.selectbox('Status:', ['Single', 'Married']),
+                    st.number_input('Age:'),
+                    st.number_input('Number of Dependents:'),
+                    st.number_input('Number of Products:'),
+                    st.selectbox('Service Category:', ['A', 'B', 'C'])]
+
+    # Preprocess user input
+    input_data = pd.DataFrame([other_features], columns=['Gender', 'Status', 'Age', 'Number of Dependents', 'Number of Products', 'Service Category'])
+    input_data = preprocess_data(input_data)
+    input_data['Monthly Purchase (Thou. IDR)'] = monthly_purchase
+    input_data['CLTV (Predicted Thou. IDR)'] = cltv
+    input_data[numeric] = scaler_power.transform(input_data[numeric])
+
+    # Make Prediction
+    prediction = rf_classifier.predict(input_data)
+
+    st.write('---')
+    st.header('Prediction Result')
+    st.write(f'The predicted Churn Label is: {prediction[0]}')
+
+    st.write('---')
+    st.header('Classification Report')
+    y_pred = rf_classifier.predict(X_test)
+    classification_rep = classification_report(y_test, y_pred)
+    st.text(classification_rep)
+
 
 # Create the sidebar for content selection
 selected_tab = st.sidebar.selectbox("Select a tab:", ["EDA", "Chat", "Statistic Test", "Model"])
