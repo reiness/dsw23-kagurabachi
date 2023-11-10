@@ -255,20 +255,35 @@ def model_tab():
     st.header('Input Predict')
     
     # User Input for Prediction
+    tenure_months = st.number_input('Tenure Months:')
+    location = st.selectbox('Location:', df['Location'].unique())
+    device_class = st.selectbox('Device Class:', df['Device Class'].unique())
+    games_product = st.selectbox('Games Product:', ['Yes', 'No'])
+    music_product = st.selectbox('Music Product:', ['Yes', 'No'])
+    education_product = st.selectbox('Education Product:', ['Yes', 'No'])
+    call_center = st.selectbox('Call Center:', ['Yes', 'No'])
+    video_product = st.selectbox('Video Product:', ['Yes', 'No'])
+    use_myapp = st.selectbox('Use MyApp:', ['Yes', 'No'])
+    payment_method = st.selectbox('Payment Method:', df['Payment Method'].unique())
     monthly_purchase = st.number_input('Monthly Purchase (Thou. IDR):')
     cltv = st.number_input('CLTV (Predicted Thou. IDR):')
-    other_features = [st.selectbox('Gender:', ['Male', 'Female']),
-                    st.selectbox('Status:', ['Single', 'Married']),
-                    st.number_input('Age:'),
-                    st.number_input('Number of Dependents:'),
-                    st.number_input('Number of Products:'),
-                    st.selectbox('Service Category:', ['A', 'B', 'C'])]
 
     # Preprocess user input
-    input_data = pd.DataFrame([other_features], columns=['Gender', 'Status', 'Age', 'Number of Dependents', 'Number of Products', 'Service Category'])
+    input_data = pd.DataFrame({
+        'Tenure Months': [tenure_months],
+        'Location': [location],
+        'Device Class': [device_class],
+        'Games Product': [games_product],
+        'Music Product': [music_product],
+        'Education Product': [education_product],
+        'Call Center': [call_center],
+        'Video Product': [video_product],
+        'Use MyApp': [use_myapp],
+        'Payment Method': [payment_method],
+        'Monthly Purchase (Thou. IDR)': [monthly_purchase],
+        'CLTV (Predicted Thou. IDR)': [cltv]
+    })
     input_data = preprocess_data(input_data)
-    input_data['Monthly Purchase (Thou. IDR)'] = monthly_purchase
-    input_data['CLTV (Predicted Thou. IDR)'] = cltv
     input_data[numeric] = scaler_power.transform(input_data[numeric])
 
     # Make Prediction
