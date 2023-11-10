@@ -291,7 +291,11 @@ def model_tab():
 
     st.write('---')
     st.header('Prediction Result')
-    st.write(f'The predicted Churn Label is: {prediction[0]}')
+
+    # Mengubah nilai 0 menjadi 'No' dan nilai 1 menjadi 'Yes'
+    prediction_label = 'Yes' if prediction[0] == 1 else 'No'
+
+    st.write(f'The predicted Churn Label is: {prediction_label}')
 
     st.write('---')
     st.header('Classification Report')
