@@ -192,7 +192,7 @@ def eda_tab():
     st.plotly_chart(fig)
 
 def chat_tab():
-    plt.use('TkAgg')
+    # plt.use('TkAgg')
 
     API_KEY = st.secrets['OPENAI_API_KEY']
     llm = OpenAI(api_token=API_KEY)
