@@ -89,3 +89,5 @@ h3
 plotly.express
 scikit-learn
 imbalanced-learn
+statsmodels
+ipython
