@@ -15,6 +15,16 @@ import streamlit as st
 from pandasai import SmartDataframe
 from pandasai.llm.openai import OpenAI
 
+#Model
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PowerTransformer
+from sklearn.ensemble import IsolationForest
+import numpy as np
+from imblearn.over_sampling import SMOTEN
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
+
 
 # Set page configuration
 st.set_page_config(
@@ -198,10 +208,124 @@ def statistic_test_tab():
     st.header('Statistic Tests')
     st.write('---')
 
-
 def model_tab():
     st.header('Model')
+
+    # Load data
+    df = pd.read_excel('data.xlsx')
+    
+    # Preprocess data
+    df.drop(columns=['Customer ID', 'Longitude', 'Latitude','Use MyApp','Video Product'], inplace=True)
+    le = LabelEncoder()
+
+    for col in df.columns:
+        if df[col].dtype == 'object':
+            df[col] = le.fit_transform(df[col])
+
+    # Split data
+    X_train, X_test, y_train, y_test = train_test_split(df.drop(columns=['Churn Label']), df['Churn Label'], test_size=0.2, random_state=42, stratify=df['Churn Label'])
+
+    # Apply Power Transformer
+    numeric = ['Monthly Purchase (Thou. IDR)', 'CLTV (Predicted Thou. IDR)']
+    scaler_power = PowerTransformer(method='yeo-johnson')
+    X_train[numeric] = scaler_power.fit_transform(X_train[numeric])
+    X_test[numeric] = scaler_power.transform(X_test[numeric])
+
+    clf = IsolationForest(max_samples=1500, random_state=42,contamination=.075,n_jobs=-1)
+    clf.fit(X_train)
+    # Predictions on the test set
+    predictions = clf.predict(X_train)
+
+    # Identify indices of outliers
+    outlier_indices = np.where(predictions == -1)[0]
+
+    # Impute outliers with the median value
+    for column in X_train.columns:
+        median_value = X_train[column].median()
+        X_train.iloc[outlier_indices, X_train.columns.get_loc(column)] = median_value
+
+    # Apply SMOTE
+    smote = SMOTEN(random_state=42, k_neighbors=3)
+    X_train_over, y_train_over = smote.fit_resample(X_train, y_train)
+
+    # Train RandomForestClassifier
+    rf_classifier = RandomForestClassifier(
+        random_state=42,
+        n_estimators=1510,
+        min_samples_split=66,
+        min_samples_leaf=3,
+        max_depth=64,
+        criterion='gini',n_jobs=-1,warm_start=True
+    )
+    rf_classifier.fit(X_train_over, y_train_over)
+
+
+    y_pred = rf_classifier.predict(X_test)
+    classification_rep = classification_report(le.inverse_transform(y_test), le.inverse_transform(y_pred))
+
+    with st.expander("Click here to see the detailed information performace model with 20% test data"):
+        st.text(f"```{classification_rep}```")
+
+
     st.write('---')
+    st.header('Input Predict')
+    
+    # User Input for Prediction
+    tenure_months = st.number_input('Tenure Months:',value=3)
+    location = st.selectbox('Location:', df['Location'].unique(),
+                            help='0 = Bandung, 1 = Jakarta')
+    device_class = st.selectbox('Device Class:',
+                            df['Device Class'].unique(),
+                            help='0 = High End, 1 = Low End, 2 = Mid End')
+    games_product = st.selectbox('Games Product:', ['Yes', 'No'])
+    music_product = st.selectbox('Music Product:', ['Yes', 'No'])
+    education_product = st.selectbox('Education Product:', ['Yes', 'No'])
+    call_center = st.selectbox('Call Center:', ['Yes', 'No'])
+    payment_method = st.selectbox('Payment Method:', df['Payment Method'].unique(),
+                                help='0 = Credit, 1 = Debit, 2 = Digital Wallet, 3 = Pulsa')
+    monthly_purchase = st.number_input('Monthly Purchase (Thou. IDR):',value=91.910)
+    cltv = st.number_input('CLTV (Predicted Thou. IDR):',value=3511.3)
+
+    # Preprocess user input
+    input_data = pd.DataFrame({
+        'Tenure Months': [tenure_months],
+        'Location': [location],
+        'Device Class': [device_class],
+        'Games Product': [games_product],
+        'Music Product': [music_product],
+        'Education Product': [education_product],
+        'Call Center': [call_center],
+        'Payment Method': [payment_method],
+        'Monthly Purchase (Thou. IDR)': [monthly_purchase],
+        'CLTV (Predicted Thou. IDR)': [cltv]
+    })
+
+
+    # Tombol Submit
+    if st.button('Submit'):
+        for col in input_data.columns:
+            if input_data[col].dtype == 'object':
+                input_data[col] = le.transform(input_data[col])
+
+        input_data[numeric] = scaler_power.transform(input_data[numeric])
+        
+        # Make Prediction
+        prediction = rf_classifier.predict(input_data)
+
+        st.write('---')
+        st.header('Prediction Result')
+
+        # Mengubah nilai 0 menjadi 'No' dan nilai 1 menjadi 'Yes'
+        prediction_label = 'Yes' if prediction[0] == 1 else 'No'
+
+        if prediction_label == 'Yes':
+            st.markdown(f'The predicted Churn Label is: ')
+            st.success(prediction_label)
+        else:
+            st.markdown(f'The predicted Churn Label is: ')
+            st.error(prediction_label)
+
+
 
 # Create the sidebar for content selection
 selected_tab = st.sidebar.selectbox("Select a tab:", ["EDA", "Chat", "Statistic Test", "Model"])
