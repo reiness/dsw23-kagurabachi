@@ -14,6 +14,17 @@ import os
 import streamlit as st
 from pandasai import SmartDataframe
 from pandasai.llm.openai import OpenAI
+from scipy.stats import pearsonr, chi2_contingency
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import PowerTransformer
+import seaborn as sns
+from statsmodels.graphics.gofplots import qqplot
+import matplotlib.pyplot as plt
+from scipy.stats import probplot
+from scipy.stats import shapiro
+from scipy.stats import f_oneway
+from scipy.stats import spearmanr
+
 
 
 # Set page configuration
@@ -197,7 +208,224 @@ def chat_tab():
 def statistic_test_tab():
     st.header('Statistic Tests')
     st.write('---')
+    
+    df = pd.read_excel('data.xlsx')
+    # Label Encoder
+    object_columns = df.select_dtypes(include='object').columns
+    label_encoder = LabelEncoder()
 
+    for column in object_columns:
+        df[column] = label_encoder.fit_transform(df[column])
+
+    numeric = ['Monthly Purchase (Thou. IDR)', 'CLTV (Predicted Thou. IDR)']
+    scaler_power = PowerTransformer(method='yeo-johnson')
+    df[numeric] = scaler_power.fit_transform(df[numeric])
+    
+    # Pearson Correlation Test
+    target_variable_num = 'Churn Label'
+    numeric_predictors = ['Monthly Purchase (Thou. IDR)', 'CLTV (Predicted Thou. IDR)']
+    correlations_num = []
+
+    for predictor in numeric_predictors:
+        correlation, p_value = pearsonr(df[predictor], df[target_variable_num])
+        significance = 'Pengaruh' if abs(correlation) >= 0.5 else 'Tidak Pengaruh'
+        correlation_result = {'Predictor': predictor, 'Correlation': correlation, 'P-Value': p_value, 'Significance': significance}
+        correlations_num.append(correlation_result)
+
+        correlations_df_num = pd.DataFrame(correlations_num)
+        
+    # Chi-Square Test
+    target_variable_cat = 'Churn Label'
+    categorical_predictors = ['Tenure Months', 'Location', 'Device Class', 'Games Product', 'Music Product', 'Education Product', 'Call Center', 'Video Product', 'Use MyApp', 'Payment Method']
+    correlations = []
+
+    for predictor in categorical_predictors:
+        contingency_table = pd.crosstab(df[predictor], df[target_variable_cat])
+        chi2, p_value, _, _ = chi2_contingency(contingency_table)
+        significance = 'Pengaruh' if p_value < 0.05 else 'Tidak Pengaruh'
+        correlation_result = {'Predictor': predictor, 'Chi-Square': chi2, 'P-Value': p_value, 'Significance': significance}
+        correlations.append(correlation_result)
+
+        correlations_df_cat = pd.DataFrame(correlations)
+    
+    # Label Encoder Result
+    st.header('Data After Label Encoding and Scaling Result')
+    st.dataframe(df)
+
+    # Pearson Correlation Test Result
+    st.header('Exploring Linear Relationships with Pearson Correlation')
+    
+    st.image('cor1.jpeg',width=400)
+    st.write("Tes korelasi Pearson digunakan untuk mengukur kekuatan dan arah hubungan linear antara dua variabel kontinu. "
+         "Ini menghasilkan koefisien korelasi Pearson yang berkisar dari -1 hingga 1. "
+         "Nilai 1 menunjukkan hubungan positif sempurna, nilai -1 menunjukkan hubungan negatif sempurna, "
+         "dan nilai 0 menunjukkan tidak adanya hubungan linear.")
+
+    st.write("Tipe data yang dapat digunakan dalam tes korelasi Pearson adalah data kontinu atau numerik, "
+         "seperti variabel suhu, berat badan, atau pendapatan. "
+         "Tes ini cocok untuk mengukur hubungan antara dua variabel yang dapat diukur dalam skala interval atau rasio. "
+         "Data yang berbentuk distribusi normal atau mendekati distribusi normal akan memberikan hasil yang lebih dapat diandalkan.")
+
+    st.dataframe(correlations_df_num)
+    
+    # Pearson Correlation Test Result
+    st.header('Exploring Categorical Relationships with Chi-Square Test')
+    
+    st.image('cor2.jpg',width=400)
+    
+    st.write("Uji Chi-Square digunakan untuk menguji hubungan antara dua variabel kategorikal. Ini menghasilkan nilai Chi-Square, "
+         "P-Value, dan menginterpretasikan signifikansinya.")
+
+    st.write("Tipe data yang dapat digunakan dalam uji Chi-Square adalah data kategorikal, seperti jenis kelamin, status kepemilikan perangkat, "
+         "atau variabel dengan kategori yang dapat dihitung.")
+    st.dataframe(correlations_df_cat)
+    
+    # Pearson Correlation Test Result
+    st.header('Exploring Ordinal Relationships with Spearman Test')
+    st.image('cor3.jpg',width=400)
+    
+    st.write("Uji korelasi Spearman digunakan untuk mengukur hubungan statistik non-linear antara dua variabel ordinal atau interval. " 
+             "Tujuannya adalah untuk mengevaluasi sejauh mana perubahan dalam satu variabel terkait dengan perubahan dalam variabel lain, meskipun hubungan tersebut mungkin tidak bersifat linier.")
+    
+    st.write("Hasil uji:")
+    # Perform Spearman rank correlation test
+    spearman_corr, p_value = spearmanr(df['Tenure Months'], df['Churn Label'])
+
+    # Display the results in Streamlit
+    st.write(f"Spearman Rank Correlation: {spearman_corr}")
+    st.write(f"P-value: {p_value}")
+
+    # Interpretation
+    alpha = 0.05
+    if p_value < alpha:
+        st.write("Variabel Tenure Months memiliki korelasi yang signifikan terhadap variabel Churn Label (tolak H0)")
+    else:
+        st.write("Tidak terdapat korelasi yang signifikan antara variabel Tenure Months (gagal tolak H0)")
+    
+    
+    # Normality Test
+    st.header('Univariate Normality Tests')
+    
+    st.subheader('Shapiro-Wilk Test:')
+    
+        # Specify the columns you want to test for normality
+    columns_to_test = ['Tenure Months', 'Monthly Purchase (Thou. IDR)', 'CLTV (Predicted Thou. IDR)']
+
+    # Iterate through selected columns
+    for column in columns_to_test:
+        # Perform Shapiro-Wilk test
+        stat, p_value = shapiro(df[column])
+        
+        # Display the results in Streamlit
+        st.subheader(f"Uji Pada Variabel' {column}'")
+        st.write(f"Statistic: {stat}")
+        st.write(f"P-value: {p_value}")
+        
+        # Check the p-value and provide interpretation
+        alpha = 0.05
+        if p_value > alpha:
+            st.write("Data terlihat berdistribusi normal (gagal menolak H0)")
+        else:
+            st.write("Data tidak terlihat berdistribusi normal (menolak H0)")
+        
+        st.write("\n")
+        
+    
+    # Set a custom style with no background and only the plots
+    plt.style.use({'axes.facecolor': 'none', 'figure.facecolor': 'none'})
+
+    # Specify the columns you want to visualize
+    columns_to_visualize = ['Tenure Months', 'Monthly Purchase (Thou. IDR)', 'CLTV (Predicted Thou. IDR)']
+
+    # Set a gradient color palette
+    colors = sns.color_palette("viridis", len(columns_to_visualize))
+
+    # Set white as the text color
+    text_color = 'white'
+
+    # Iterate through selected columns
+    for i, column in enumerate(columns_to_visualize):
+        # Create a new Streamlit column
+        col1, col2 = st.columns(2)
+
+        # Histogram
+        with col1:
+            st.subheader(f'Histogram - {column}')
+            fig_hist, ax_hist = plt.subplots(figsize=(8, 4))
+            sns.histplot(df[column], kde=True, color=colors[i])
+            plt.title(f'Histogram - {column}', color=text_color)
+            plt.xlabel('', color=text_color)  # Hide x-axis label for a cleaner look
+            plt.setp(ax_hist.get_xticklabels(), color=text_color)  # Set x-axis tick labels color
+            plt.setp(ax_hist.get_yticklabels(), color=text_color)  # Set y-axis tick labels color
+            ax_hist.xaxis.label.set_color(text_color)  # Set x-axis label color
+            ax_hist.yaxis.label.set_color(text_color)  # Set y-axis label color
+            st.pyplot(fig_hist, bbox_inches='tight', pad_inches=0, use_container_width=True)
+            plt.close(fig_hist)  # Close the Matplotlib figure to prevent it from being displayed again
+            
+        # Q-Q Plot
+        with col2:
+            st.subheader(f'Q-Q Plot - {column}')
+            fig_qqplot, ax_qqplot = plt.subplots(figsize=(8, 4))
+            qqplot(df[column], line='s', ax=ax_qqplot, color=colors[i])
+            plt.title(f'Q-Q Plot - {column}', color=text_color)
+            plt.xlabel('', color=text_color)  # Hide x-axis label for a cleaner look
+            plt.setp(ax_qqplot.get_xticklabels(), color=text_color)  # Set x-axis tick labels color
+            plt.setp(ax_qqplot.get_yticklabels(), color=text_color)  # Set y-axis tick labels color
+            ax_qqplot.xaxis.label.set_color(text_color)  # Set x-axis label color
+            ax_qqplot.yaxis.label.set_color(text_color)  # Set y-axis label color
+            st.pyplot(fig_qqplot, bbox_inches='tight', pad_inches=0, use_container_width=True)
+            plt.close(fig_qqplot)  # Close the Matplotlib figure to prevent it from being displayed again
+            
+    
+    # ANOVA
+    st.header(' One-Way Analysis of variance')
+
+    # Example data
+    churn_labels = df['Churn Label'].unique()
+
+    # Create a list of data for each group
+    groups_data = [df[df['Churn Label'] == label]['Monthly Purchase (Thou. IDR)'] for label in churn_labels]
+
+    # Perform ANOVA
+    f_statistic, p_value = f_oneway(*groups_data)
+
+    # Display the results in Streamlit
+    st.subheader("Variable: Monthly Purchase (Thou. IDR) based on Churn Label")
+    st.write(f"ANOVA F-statistic: {f_statistic}")
+    st.write(f"P-value: {p_value}")
+
+    # Check the p-value and provide interpretation
+    alpha = 0.05
+    if p_value < alpha:
+        st.write("Ada Perbedaan Mean rata-rata Monthly Purchase (Thou. IDR) antara kelompok 'Yes' dan 'No' (Tolak H0)")
+    else:
+        st.write("Tidak Ada Perbedaan Mean rata-rata Monthly Purchase (Thou. IDR) antara kelompok 'Yes' dan 'No' (Gagal Tolak H0)")
+
+    # ANOVA for CLTV (Predicted Thou. IDR)
+    
+    # Example data
+    churn_labels = df['Churn Label'].unique()
+
+    # Create a list of data for each group
+    groups_data_cltv = [df[df['Churn Label'] == label]['CLTV (Predicted Thou. IDR)'] for label in churn_labels]
+
+    # Perform ANOVA
+    f_statistic_cltv, p_value_cltv = f_oneway(*groups_data_cltv)
+
+    # Display the results in Streamlit
+    st.subheader("Variable: CLTV (Predicted Thou. IDR) based on Churn Label")
+    st.write(f"ANOVA F-statistic: {f_statistic_cltv}")
+    st.write(f"P-value: {p_value_cltv}")
+
+    # Check the p-value and provide interpretation
+    alpha_cltv = 0.05
+    if p_value_cltv < alpha_cltv:
+        st.write("Ada Perbedaan Mean rata-rata CLTV (Predicted Thou. IDR) antara kelompok 'Yes' dan 'No' (Tolak H0)")
+    else:
+        st.write("Tidak Ada Perbedaan Mean rata-rata CLTV (Predicted Thou. IDR) antara kelompok 'Yes' dan 'No' (Gagal Tolak H0)")
+
+
+        
 
 def model_tab():
     st.header('Model')
