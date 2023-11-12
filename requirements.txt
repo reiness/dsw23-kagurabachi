@@ -84,7 +84,7 @@ seaborn
 numpy
 pandas
 plotly
-branca.colormap
+branca
 h3
 plotly.express
 scikit-learn
