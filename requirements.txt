@@ -91,3 +91,4 @@ scikit-learn
 imbalanced-learn
 statsmodels
 ipython
+openpyxl
