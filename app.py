@@ -34,8 +34,8 @@ from scipy.stats import probplot
 from scipy.stats import shapiro
 from scipy.stats import f_oneway
 from scipy.stats import spearmanr
-
-
+import subprocess
+subprocess.run(["pip", "install", "--upgrade", "pandasai"])
 
 # Set page configuration
 st.set_page_config(

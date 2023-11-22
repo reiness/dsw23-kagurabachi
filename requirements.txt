@@ -92,4 +92,3 @@ imbalanced-learn
 statsmodels
 ipython
 openpyxl
---upgrade pandasai
