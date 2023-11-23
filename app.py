@@ -213,7 +213,13 @@ def chat_tab():
     if submitted:
             if prompt:
                 with st.spinner("Kagura-chan is thinking (⌐■_■) , please wait..."):
-                    st.write(df.chat(prompt))
+                    bot_out = df.chat(prompt)
+                    if bot_out is not None:
+                        st.write(bot_out)
+                    else:
+                        st.write('\n')
+                        
+                    # st.write(df.chat(prompt))
                     if any(kw in prompt.lower() for kw in keyword):
                         with st.expander("click here to see my work >//<"):
                             st.image(st.secrets['KAGURA_VIZ'], width=500, caption="Kagura-chan's artwork") 
