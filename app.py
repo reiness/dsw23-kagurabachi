@@ -200,20 +200,26 @@ def chat_tab():
     df = pd.read_excel('data.xlsx')
     df = SmartDataframe(df, config={'llm':llm})
 
-    st.header("Hello, I'm Kagura-Bot!")
-    st.image('maid.png',width=400)
-    
+    st.header("Hello, I'm Kagura-chan!")
+    st.image('maid.png', width=400)
+
+    keyword = ['viz', 'visualization', 'plot', 'barplot', 'graf', 'graph', 'visualisasi','chart','gambar']
 
     with st.form("prompt_area"):
         prompt = st.text_input("Ask me anything ^ ^")
-        submitted = st.form_submit_button("Submit")
-    
+        submitted = st.form_submit_button("Ask Kagura-chan")
+        # st.image("exports/charts/temp_chart.png", width=500, caption="Kagura-chan's artwork") 
+
     if submitted:
-        if prompt:
-            with st.spinner("Generating answer, please wait..."):
-                st.write(df.chat(prompt))
-        else:
-            st.write("Please enter a request.")
+            if prompt:
+                with st.spinner("Kagura-chan is thinking (⌐■_■) , please wait..."):
+                    st.write(df.chat(prompt))
+                    if any(kw in prompt.lower() for kw in keyword):
+                        with st.expander("click here to see my work >//<"):
+                            st.image("exports/charts/temp_chart.png", width=500, caption="Kagura-chan's artwork")
+            else:
+                st.write("Please enter a request.")
+
 
 def statistic_test_tab():
     st.header('Statistic Tests')
