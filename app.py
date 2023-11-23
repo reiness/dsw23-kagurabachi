@@ -208,7 +208,7 @@ def chat_tab():
     with st.form("prompt_area"):
         prompt = st.text_input("Ask me anything ^ ^")
         submitted = st.form_submit_button("Ask Kagura-chan")
-        # st.image("exports/charts/temp_chart.png", width=500, caption="Kagura-chan's artwork") 
+        # st.image(st.secrets['KAGURA_VIZ'], width=500, caption="Kagura-chan's artwork") 
 
     if submitted:
             if prompt:
@@ -216,7 +216,7 @@ def chat_tab():
                     st.write(df.chat(prompt))
                     if any(kw in prompt.lower() for kw in keyword):
                         with st.expander("click here to see my work >//<"):
-                            st.image("exports/charts/temp_chart.png", width=500, caption="Kagura-chan's artwork")
+                            st.image(st.secrets['KAGURA_VIZ'], width=500, caption="Kagura-chan's artwork") 
             else:
                 st.write("Please enter a request.")
 
