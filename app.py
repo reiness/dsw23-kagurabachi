@@ -194,37 +194,75 @@ def eda_tab():
 def chat_tab():
     # plt.use('TkAgg')
 
+    # kagu1, kagu2, kagu3 = st.columns([1,5,1])
+
+    # with kagu2:
+    #     st.header("Hello, I'm Kagura-chan!")
+
+    import streamlit as st
+
+    st.markdown("""
+        <style>
+        .header-style {
+        font-size: 36px;
+        text-align: center;
+        font-weight: bold;
+
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+    st.markdown('<p class="header-style">Hello, I\'m Kagura-chan!</p><br>', unsafe_allow_html=True)
+
+
     API_KEY = st.secrets['OPENAI_API_KEY']
     llm = OpenAI(api_token=API_KEY)
 
     df = pd.read_excel('data.xlsx')
     df = SmartDataframe(df, config={'llm':llm})
+    
+    # Creating two columns for the layout
+    col1, col2 = st.columns([2, 3])  # Adjust the ratio as needed
 
-    st.header("Hello, I'm Kagura-chan!")
-    st.image('kagurachan.png', width=400)
+    keyword = ['viz', 'visualization', 'plot', 'barplot', 'graf', 'graph', 'visualisasi', 'chart', 'gambar']
 
-    keyword = ['viz', 'visualization', 'plot', 'barplot', 'graf', 'graph', 'visualisasi','chart','gambar']
+    # Column 1 for the image
+    with col1:
+        st.image('kagurachan.png', width=400)
 
-    with st.form("prompt_area"):
-        prompt = st.text_input("Ask me anything ^ ^")
-        submitted = st.form_submit_button("Ask Kagura-chan")
-        # st.image(st.secrets['KAGURA_VIZ'], width=500, caption="Kagura-chan's artwork") 
+    # Column 2 for the user prompt
+    with col2:
+        st.write("""
+Kagura-chan adalah salah satu bot dari **KAGURABACHI** yang dapat kamu anggap seperti asisten pribadi. 
+Ia bisa memahami dataset yang ada dan ia juga bisa mengerjakan pekerjaan mudah seperti membuat **visualisasi**. 
+Jangan memberi perintah yang terlalu susah karena bisa saja Kagura-chan malah **membencimu**.
 
-    if submitted:
-            if prompt:
-                with st.spinner("Kagura-chan is thinking (⌐■_■) , please wait..."):
-                    bot_out = df.chat(prompt)
-                    if bot_out is not None:
-                        st.write(bot_out)
-                    else:
-                        st.write('\n')
+## Fitur Utama
+- **Asisten Pribadi yang Ramah dan Cerdas**: Kagura-chan didesain untuk memahami kebutuhan Anda. Dari menjawab pertanyaan seputar dataset hingga membantu Anda dalam analisis data, Kagura-chan adalah partner yang Anda butuhkan untuk menjelajah dunia data yang kompleks.
+- **Ahli Visualisasi Data**: Minta saja dan Kagura-chan akan mengubah data mentah menjadi visualisasi yang mudah dipahami dan menarik. Grafik, diagram, dan peta interaktif? Semua menjadi lebih mudah dengan sentuhan Kagura-chan.
+""") 
+        
+    
+    r1, r2 = st.columns([2, 3])
+    
+    with r1:
+        with st.form("prompt_area"):
+            prompt = st.text_input("Ask me anything ^ ^")
+            submitted = st.form_submit_button("Ask Kagura-chan")
 
-                    # st.write(df.chat(prompt))
-                    if any(kw in prompt.lower() for kw in keyword):
-                        with st.expander("click here to see my work >//<"):
-                            st.image(st.secrets['KAGURA_VIZ'], width=500, caption="Kagura-chan's artwork") 
-            else:
-                st.write("Please enter a request.")
+    with r2:
+        # Logic for processing the prompt and displaying results
+        if submitted and prompt:
+            with st.spinner("Kagura-chan is thinking (⌐■_■) , please wait..."):
+                bot_out = df.chat(prompt)
+                st.write(bot_out if bot_out is not None else '')
+
+                # Additional logic for visualization
+                if any(kw in prompt.lower() for kw in keyword):
+                    with st.expander("click here to see my work >//<"):
+                        st.image(st.secrets['KAGURA_VIZ'], width=500, caption="Kagura-chan's artwork")
+        elif submitted:
+            st.write("Please enter a request.")
 
 
 def statistic_test_tab():
