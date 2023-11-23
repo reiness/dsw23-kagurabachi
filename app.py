@@ -201,7 +201,7 @@ def chat_tab():
     df = SmartDataframe(df, config={'llm':llm})
 
     st.header("Hello, I'm Kagura-chan!")
-    st.image('maid.png', width=400)
+    st.image('kagurachan.png', width=400)
 
     keyword = ['viz', 'visualization', 'plot', 'barplot', 'graf', 'graph', 'visualisasi','chart','gambar']
 
@@ -218,7 +218,7 @@ def chat_tab():
                         st.write(bot_out)
                     else:
                         st.write('\n')
-                        
+
                     # st.write(df.chat(prompt))
                     if any(kw in prompt.lower() for kw in keyword):
                         with st.expander("click here to see my work >//<"):
