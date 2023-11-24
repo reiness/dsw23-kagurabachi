@@ -13,8 +13,8 @@ import matplotlib as plt
 import os
 import streamlit as st
 from pandasai import SmartDataframe
-from pandasai.llm.openai import OpenAI
-from openai import OpenAI as ai
+from pandasai.llm.openai import OpenAI as OpenAIpandas
+from openai import OpenAI 
 import time
 
 #Model
@@ -35,6 +35,7 @@ import statsmodels.api as sm
 from statsmodels.formula.api import ols
 import subprocess
 subprocess.run(["pip", "install", "--upgrade", "pandasai"])
+# subprocess.run(["from", "openai", "import", "OpenAI", "as","ai"])
 
 # Set page configuration
 st.set_page_config(
@@ -233,7 +234,7 @@ def chat_tab():
 
 
     API_KEY = st.secrets['OPENAI_API_KEY']
-    llm = OpenAI(api_token=API_KEY)
+    llm = OpenAIpandas(api_token=API_KEY)
 
     df = pd.read_excel('data.xlsx')
     df = SmartDataframe(df, config={'llm':llm})
@@ -428,7 +429,7 @@ Jangan memberi perintah yang terlalu susah karena bisa saja Kagura-chan malah **
     """
     bachiprompt = template
 
-    client = ai(
+    client = OpenAI(
     api_key=st.secrets['OPENAI_API_KEY'],
     )
 
