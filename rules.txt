@@ -1,0 +1,15 @@
+Call Center = No; Use MyApp = No internet service
+Use MyApp = No internet service; Device Class = Low End, Call Center = No  
+Device Class = Low End; Use MyApp = No internet service, Call Center = No  
+Video Product = No internet service; Use MyApp = No internet service, Call Center = No  
+Education Product = No internet service; Use MyApp = No internet service, Call Center = No  
+Music Product = No internet service; Use MyApp = No internet service, Call Center = No  
+Games Product = No internet service; Use MyApp = No internet service, Call Center = No  
+Use MyApp = Yes; Video Product = Yes  
+Video Product = No; Use MyApp = No  
+Video Product = Yes; Use MyApp = Yes  
+Use MyApp = No; Video Product = No  
+Education Product = Yes; Use MyApp = Yes  
+Education Product = No; Use MyApp = No  
+Games Product = No; Device Class = High End 
+Device Class = Mid End; Games Product = Yes  

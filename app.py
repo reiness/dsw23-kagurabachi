@@ -14,6 +14,8 @@ import os
 import streamlit as st
 from pandasai import SmartDataframe
 from pandasai.llm.openai import OpenAI
+from openai import OpenAI as ai
+import time
 
 #Model
 from sklearn.preprocessing import LabelEncoder
@@ -199,8 +201,6 @@ def chat_tab():
     # with kagu2:
     #     st.header("Hello, I'm Kagura-chan!")
 
-    import streamlit as st
-
     st.markdown("""
         <style>
         .header-style {
@@ -253,7 +253,7 @@ Jangan memberi perintah yang terlalu susah karena bisa saja Kagura-chan malah **
     with r2:
         # Logic for processing the prompt and displaying results
         if submitted and prompt:
-            with st.spinner("Kagura-chan is thinking (⌐■_■) , please wait..."):
+            with st.spinner("Kagura-chan is thinking (♡μ_μ), please wait..."):
                 bot_out = df.chat(prompt)
                 st.write(bot_out if bot_out is not None else '')
 
@@ -263,6 +263,187 @@ Jangan memberi perintah yang terlalu susah karena bisa saja Kagura-chan malah **
                         st.image(st.secrets['KAGURA_VIZ'], width=500, caption="Kagura-chan's artwork")
         elif submitted:
             st.write("Please enter a request.")
+
+    st.write('---')
+
+
+    st.markdown("""
+        <style>
+        .header-style {
+        font-size: 36px;
+        text-align: center;
+        font-weight: bold;
+
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+    st.markdown('<p class="header-style">Yo! I\'m Bachi</p><br>', unsafe_allow_html=True)
+
+    # Creating two columns for the layout
+    bac1, bac2 = st.columns([3,2])  # Adjust the ratio as needed
+
+    # Column 1 for the bachi desc
+    with bac1:
+        st.markdown("""
+            <style>
+            .justify {
+                text-align: justify;
+            }
+            </style>
+            <div class="justify">
+            Rekan terpercaya Kagura-chan dari keluarga KAGURABACHI, Bachi dirancang khusus untuk menjadi kekuatan pendorong di balik strategi pemasaran Anda. Bukan hanya chatbot biasa; Bachi adalah asisten cerdas yang berfokus pada analisis data untuk meningkatkan efektivitas strategi pemasaran Anda.
+
+            ## Mengapa Bachi Menjadi Pilihan Ideal untuk Strategi Pemasaran?
+
+            - **Ahli dalam Menentukan Promo yang Tepat:** Bachi memahami kebutuhan unik setiap pelanggan. Dengan kecerdasan buatan canggih, ia dapat menganalisis tren dan data pelanggan untuk menentukan jenis promosi yang paling efektif, membantu meningkatkan loyalitas pelanggan terhadap perusahaan Anda.
+
+            - **Data-Driven Insights:** Berbekal dengan kemampuan analisis data yang kuat, Bachi menyediakan wawasan yang didasarkan pada data untuk membantu Data Analyst dalam merancang strategi pemasaran yang lebih terarah dan efektif.
+            </div>
+        """, unsafe_allow_html=True)
+
+
+    # Column 2 for the bachi image
+    with bac2:
+        st.image('bachi.png', width=450)
+
+
+    # def load_rules(ruler):
+    #     """Load and parse association rules from the given file."""
+    #     with open(ruler, 'r') as file:
+    #         rules = [line.strip().split(';') for line in file.readlines()]
+    #     return {antecedent.strip(): consequent.strip() for antecedent, consequent in rules}
+
+    # def list_antecedents(rules):
+    #     pass
+
+    # def list_consequents(rules, antecedent):
+    #     pass
+
+    
+    # available_antecedents = []
+    # available_consequents = []
+
+    antecedents_consequents_pair = {}
+    consequents_list = []
+    antecedents_list = []
+    consequents = 0
+    antecedents = 0
+
+    def pairing_antecedents_consequents(rules):
+        # antecedents_consequents_pair = {}
+        
+        # Split the input string into rows
+        rows = rules.strip().split('\n')
+
+        for row in rows:
+            # Split each row into two parts based on the ';' character
+            parts = row.split(';')
+        
+            # Assign consequents and antecedents
+            consequents = parts[0].strip()
+            antecedents = parts[1].strip()
+
+            if antecedents in antecedents_consequents_pair:
+                # If it exists, append the new value (consequents) to the existing list
+                antecedents_consequents_pair[antecedents].append(consequents)
+            else:
+                # If the key doesn't exist, create a new entry with the key and a list containing the value
+                antecedents_consequents_pair[antecedents] = [consequents]
+
+        return antecedents_consequents_pair
+
+    with open('rules.txt', 'r') as file:
+        # Read the content of the file
+        rules = file.read()  
+    pairing_antecedents_consequents(rules)
+
+
+    # Define your list of options
+    options1 = [
+    'Customer yang tidak bisa menggunakan MyApp karena tidak memiliki sinyal',
+    'Customer dengan Device Low-End dan tidak menggunakan Call Center',
+    'Customer yang tidak menggunakan MyApp karena tidak memiliki sinyal tidak menggunakan Call Center',
+    'Customer yang menggunakan produk video',
+    'Customer yang memang tidak ingin menggunakan MyApp',
+    'Customer yang menggunakan MyApp',
+    'Customer yang memang tidak ingin menggunakan produk video',
+    'Customer yang memiliki Device High-End',
+    'Gamers',
+    ]
+
+    options2 = [
+        'Steady Low-to-Mid Spenders (~ IDR 94,580)',
+        'Semi-Consistent Moderate Spenders (~ IDR 95,120)',
+        'Consistent Moderate Spenders (~ IDR 95,310)',
+        'Consistently High Spenders (~ IDR 95,530)',
+        'Engaged High Spenders (~ IDR 97,690)',
+        'Potential Value Seekers (~ IDR 101,860)'
+    ]
+
+    rekom1, rekom2 = st.columns([2,2]) 
+
+    with rekom1:
+        # select
+        selected_behavior = st.selectbox('Pilih behavior customer kamu', options1, index = 8)
+    
+    with rekom2:
+        selected_cluster = st.radio('Pilih segmentasi pasar yang kamu targetkan',options=options2)
+
+    # st.write('pairs:',antecedents_consequents_pair)
+    knowledge = """
+    Device Class (Device classification)
+    Games Product (Whether the customer uses the internet service for games product)
+    Music Product (Whether the customer uses the internet service for music product)
+    Education Product (Whether the customer uses the internet service for education product)
+    Call Center (Whether the customer uses the call center service)
+    Video Product (Whether the customer uses video product service)
+    Use MyApp (Whether the customer uses MyApp service)
+    Payment Method (The method used for paying the bill)
+    Monthly Purchase (Total customer’s monthly spent for all services with the unit of thousands of IDR)
+    Churn Label (Whether the customer left the company in this quarter)
+    """
+    template = f"""
+    Kamu adalah seorang Sales Marketing Strategist yang handal dalam menangani customer churn menggunakan pengetahuan dasar ini: {knowledge}.
+    Kasus kali ini memiliki perilaku customer {selected_behavior} dengan target pasar {selected_cluster} (IDR yang dimaksud disini adalah rata-rata pengeluaran cluster tersebut untuk perbulannya).
+    Buatkan aku sebuah promosi atau kebijakan bisnis yang bisa digunakan agar customer tersebut tidak churn !
+    Berikan aku SATU saja !
+    """
+    bachiprompt = template
+
+    client = ai(
+    api_key=st.secrets['OPENAI_API_KEY'],
+    )
+
+    bachiii = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": bachiprompt,
+            }
+        ],
+        model="gpt-3.5-turbo",
+    )
+
+    # A button for users to submit their selections
+    bachirekom = st.button("Ask Bachi's recommendation")
+    if bachirekom:
+        with st.spinner("Bachi is analyzing your request (⌐■_■), please hold on for a sec..."):
+            if bachiii.choices:
+                bac_out = bachiii.choices[0].message.content
+            else:
+                bac_out = None
+            # Delay for demonstration purposes
+            time.sleep(2)  # Simulate a time-consuming operation
+            
+        st.write(bac_out if bac_out is not None else '')
+
+    elif bachirekom:
+        st.write("Please enter a request.")
+
+    
+
+
 
 
 def statistic_test_tab():
