@@ -26,16 +26,13 @@ import numpy as np
 from imblearn.over_sampling import SMOTEN
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
-from scipy.stats import pearsonr, chi2_contingency
+from scipy.stats import chi2_contingency
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import PowerTransformer
 import seaborn as sns
-from statsmodels.graphics.gofplots import qqplot
-import matplotlib.pyplot as plt
-from scipy.stats import probplot
-from scipy.stats import shapiro
 from scipy.stats import f_oneway
-from scipy.stats import spearmanr
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
 import subprocess
 subprocess.run(["pip", "install", "--upgrade", "pandasai"])
 
@@ -470,6 +467,17 @@ def statistic_test_tab():
     st.header('Statistic Tests')
     st.write('---')
     
+    with st.container():
+        # Creating two columns for the layout
+        col1, col2 = st.columns([0.55, 0.45])  # Adjust the ratio as needed
+            # Column 1 for the image
+        with col1:
+            st.image('detective2.png',width=420)
+
+        # Column 2 for the user prompt
+        with col2:
+            st.write(' **Uji statistik** dalam dunia data seperti kaca pembesar yang membantu Data Analyst. Tanpa uji statistik, kita hanya akan menebak-nebak makna data tanpa dasar yang kuat. Dengan uji statistik ini, kita dapat **membedakan antara kebetulan dan pola yang nyata**, serta memastikan bahwa kesimpulan yang diambil didukung oleh **bukti yang kuat**. Sama halnya dengan detektif yang memilah bukti penting dari yang tidak, uji statistik membantu kita mengumpulkan dan menyusun cerita yang jelas dari data yang ada.')
+    
     df = pd.read_excel('data.xlsx')
     # Label Encoder
     object_columns = df.select_dtypes(include='object').columns
@@ -482,28 +490,20 @@ def statistic_test_tab():
     scaler_power = PowerTransformer(method='yeo-johnson')
     df[numeric] = scaler_power.fit_transform(df[numeric])
     
-    # Pearson Correlation Test
+    # variables
     target_variable_num = 'Churn Label'
     numeric_predictors = ['Monthly Purchase (Thou. IDR)', 'CLTV (Predicted Thou. IDR)']
     correlations_num = []
-
-    for predictor in numeric_predictors:
-        correlation, p_value = pearsonr(df[predictor], df[target_variable_num])
-        significance = 'Pengaruh' if abs(correlation) >= 0.5 else 'Tidak Pengaruh'
-        correlation_result = {'Predictor': predictor, 'Correlation': correlation, 'P-Value': p_value, 'Significance': significance}
-        correlations_num.append(correlation_result)
-
-        correlations_df_num = pd.DataFrame(correlations_num)
         
     # Chi-Square Test
     target_variable_cat = 'Churn Label'
-    categorical_predictors = ['Tenure Months', 'Location', 'Device Class', 'Games Product', 'Music Product', 'Education Product', 'Call Center', 'Video Product', 'Use MyApp', 'Payment Method']
+    categorical_predictors = ['Location', 'Device Class', 'Games Product', 'Music Product', 'Education Product', 'Call Center', 'Video Product', 'Use MyApp', 'Payment Method']
     correlations = []
 
     for predictor in categorical_predictors:
         contingency_table = pd.crosstab(df[predictor], df[target_variable_cat])
         chi2, p_value, _, _ = chi2_contingency(contingency_table)
-        significance = 'Pengaruh' if p_value < 0.05 else 'Tidak Pengaruh'
+        significance = 'Pengaruh' if p_value < 0.05 else 'Tidak Ada Pengaruh'
         correlation_result = {'Predictor': predictor, 'Chi-Square': chi2, 'P-Value': p_value, 'Significance': significance}
         correlations.append(correlation_result)
 
@@ -512,179 +512,339 @@ def statistic_test_tab():
     # Label Encoder Result
     st.header('Data After Label Encoding and Scaling Result')
     st.dataframe(df)
-
-    # Pearson Correlation Test Result
-    st.header('Exploring Linear Relationships with Pearson Correlation')
     
-    st.image('cor1.jpeg',width=400)
-    st.write("Tes korelasi Pearson digunakan untuk mengukur kekuatan dan arah hubungan linear antara dua variabel kontinu. "
-         "Ini menghasilkan koefisien korelasi Pearson yang berkisar dari -1 hingga 1. "
-         "Nilai 1 menunjukkan hubungan positif sempurna, nilai -1 menunjukkan hubungan negatif sempurna, "
-         "dan nilai 0 menunjukkan tidak adanya hubungan linear.")
-
-    st.write("Tipe data yang dapat digunakan dalam tes korelasi Pearson adalah data kontinu atau numerik, "
-         "seperti variabel suhu, berat badan, atau pendapatan. "
-         "Tes ini cocok untuk mengukur hubungan antara dua variabel yang dapat diukur dalam skala interval atau rasio. "
-         "Data yang berbentuk distribusi normal atau mendekati distribusi normal akan memberikan hasil yang lebih dapat diandalkan.")
-
-    st.dataframe(correlations_df_num)
-    
-    # Pearson Correlation Test Result
+    # Chi-Square Correlation Test Result
     st.header('Exploring Categorical Relationships with Chi-Square Test')
     
     st.image('cor2.jpg',width=400)
     
-    st.write("Uji Chi-Square digunakan untuk menguji hubungan antara dua variabel kategorikal. Ini menghasilkan nilai Chi-Square, "
-         "P-Value, dan menginterpretasikan signifikansinya.")
-
-    st.write("Tipe data yang dapat digunakan dalam uji Chi-Square adalah data kategorikal, seperti jenis kelamin, status kepemilikan perangkat, "
-         "atau variabel dengan kategori yang dapat dihitung.")
-    st.dataframe(correlations_df_cat)
-    
-    # Pearson Correlation Test Result
-    st.header('Exploring Ordinal Relationships with Spearman Test')
-    st.image('cor3.jpg',width=400)
-    
-    st.write("Uji korelasi Spearman digunakan untuk mengukur hubungan statistik non-linear antara dua variabel ordinal atau interval. " 
-             "Tujuannya adalah untuk mengevaluasi sejauh mana perubahan dalam satu variabel terkait dengan perubahan dalam variabel lain, meskipun hubungan tersebut mungkin tidak bersifat linier.")
-    
-    st.write("Hasil uji:")
-    # Perform Spearman rank correlation test
-    spearman_corr, p_value = spearmanr(df['Tenure Months'], df['Churn Label'])
-
-    # Display the results in Streamlit
-    st.write(f"Spearman Rank Correlation: {spearman_corr}")
-    st.write(f"P-value: {p_value}")
-
-    # Interpretation
-    alpha = 0.05
-    if p_value < alpha:
-        st.write("Variabel Tenure Months memiliki korelasi yang signifikan terhadap variabel Churn Label (tolak H0)")
-    else:
-        st.write("Tidak terdapat korelasi yang signifikan antara variabel Tenure Months (gagal tolak H0)")
-    
-    
-    # Normality Test
-    st.header('Univariate Normality Tests')
-    
-    st.subheader('Shapiro-Wilk Test:')
-    
-        # Specify the columns you want to test for normality
-    columns_to_test = ['Tenure Months', 'Monthly Purchase (Thou. IDR)', 'CLTV (Predicted Thou. IDR)']
-
-    # Iterate through selected columns
-    for column in columns_to_test:
-        # Perform Shapiro-Wilk test
-        stat, p_value = shapiro(df[column])
-        
-        # Display the results in Streamlit
-        st.subheader(f"Uji Pada Variabel' {column}'")
-        st.write(f"Statistic: {stat}")
-        st.write(f"P-value: {p_value}")
-        
-        # Check the p-value and provide interpretation
-        alpha = 0.05
-        if p_value > alpha:
-            st.write("Data terlihat berdistribusi normal (gagal menolak H0)")
-        else:
-            st.write("Data tidak terlihat berdistribusi normal (menolak H0)")
-        
-        st.write("\n")
-        
-    
-    # Set a custom style with no background and only the plots
-    plt.style.use({'axes.facecolor': 'none', 'figure.facecolor': 'none'})
-
-    # Specify the columns you want to visualize
-    columns_to_visualize = ['Tenure Months', 'Monthly Purchase (Thou. IDR)', 'CLTV (Predicted Thou. IDR)']
-
-    # Set a gradient color palette
-    colors = sns.color_palette("viridis", len(columns_to_visualize))
-
-    # Set white as the text color
-    text_color = 'white'
-
-    # Iterate through selected columns
-    for i, column in enumerate(columns_to_visualize):
-        # Create a new Streamlit column
-        col1, col2 = st.columns(2)
-
-        # Histogram
-        with col1:
-            st.subheader(f'Histogram - {column}')
-            fig_hist, ax_hist = plt.subplots(figsize=(8, 4))
-            sns.histplot(df[column], kde=True, color=colors[i])
-            plt.title(f'Histogram - {column}', color=text_color)
-            plt.xlabel('', color=text_color)  # Hide x-axis label for a cleaner look
-            plt.setp(ax_hist.get_xticklabels(), color=text_color)  # Set x-axis tick labels color
-            plt.setp(ax_hist.get_yticklabels(), color=text_color)  # Set y-axis tick labels color
-            ax_hist.xaxis.label.set_color(text_color)  # Set x-axis label color
-            ax_hist.yaxis.label.set_color(text_color)  # Set y-axis label color
-            st.pyplot(fig_hist, bbox_inches='tight', pad_inches=0, use_container_width=True)
-            plt.close(fig_hist)  # Close the Matplotlib figure to prevent it from being displayed again
-            
-        # Q-Q Plot
-        with col2:
-            st.subheader(f'Q-Q Plot - {column}')
-            fig_qqplot, ax_qqplot = plt.subplots(figsize=(8, 4))
-            qqplot(df[column], line='s', ax=ax_qqplot, color=colors[i])
-            plt.title(f'Q-Q Plot - {column}', color=text_color)
-            plt.xlabel('', color=text_color)  # Hide x-axis label for a cleaner look
-            plt.setp(ax_qqplot.get_xticklabels(), color=text_color)  # Set x-axis tick labels color
-            plt.setp(ax_qqplot.get_yticklabels(), color=text_color)  # Set y-axis tick labels color
-            ax_qqplot.xaxis.label.set_color(text_color)  # Set x-axis label color
-            ax_qqplot.yaxis.label.set_color(text_color)  # Set y-axis label color
-            st.pyplot(fig_qqplot, bbox_inches='tight', pad_inches=0, use_container_width=True)
-            plt.close(fig_qqplot)  # Close the Matplotlib figure to prevent it from being displayed again
-            
+    st.write("Chi-square adalah sebuah alat statistik yang membantu menentukan apakah ada hubungan yang signifikan antara dua variabel atau hanya kebetulan semata. Mirip dengan peran seorang detektif, Chi-square membantu dalam mengungkap misteri hubungan antar variabel tersebut, memberikan pemahaman apakah pola yang terlihat dalam data itu nyata secara statistik, serta mengubahnya menjadi narasi yang bisa dipahami secara luas. Dengan Chi-square, kita dapat dengan yakin menceritakan cerita yang didukung oleh bukti statistik yang kuat, menjelaskan data dengan keyakinan, dan menghindari kesimpulan yang hanya berdasarkan asumsi semata.")
+    st.dataframe(correlations_df_cat)    
     
     # ANOVA
-    st.header(' One-Way Analysis of variance')
+    st.header(' One-Way Analysis of Variance')
+    st.image('cor3.jpg',width=400)
+    st.write("One-way ANOVA adalah alat statistik yang membantu kita mengetahui apakah terdapat perbedaan signifikan antara rata-rata dari tiga atau lebih kelompok dalam dataset kita. Ini seperti detektif yang membantu mengungkap apakah ada perbedaan yang signifikan antara kelompok-kelompok, memungkinkan kita menemukan pola atau perbedaan yang mungkin terlewatkan jika hanya melihat data secara kasar. Misalnya, dalam dataset kelompok pengguna aplikasi, ANOVA akan membantu kita memahami apakah ada perbedaan yang signifikan antara performa atau preferensi di antara kelompok-kelompok tersebut.")
+    # Defining continuous target variable and categorical predictors
+    target_variable = 'CLTV (Predicted Thou. IDR)'  # CLTV as continuous target variable
+    categorical_predictors = ['Location', 'Device Class', 'Games Product', 'Music Product', 'Education Product', 'Call Center', 'Video Product', 'Use MyApp', 'Payment Method']
 
-    # Example data
-    churn_labels = df['Churn Label'].unique()
+    # Initialize a list to store ANOVA results for each predictor
+    anova_results = []
 
-    # Create a list of data for each group
-    groups_data = [df[df['Churn Label'] == label]['Monthly Purchase (Thou. IDR)'] for label in churn_labels]
+    # Loop through each categorical predictor
+    for predictor in categorical_predictors:
+        # Group CLTV by categories in the predictor variable
+        groups = [df[df[predictor] == category][target_variable] for category in df[predictor].unique()]
 
-    # Perform ANOVA
-    f_statistic, p_value = f_oneway(*groups_data)
+        # Perform ANOVA for the predictor variable
+        f_statistic, p_value = f_oneway(*groups)
 
-    # Display the results in Streamlit
-    st.subheader("Variable: Monthly Purchase (Thou. IDR) based on Churn Label")
-    st.write(f"ANOVA F-statistic: {f_statistic}")
-    st.write(f"P-value: {p_value}")
+        # Determine significance
+        if p_value < 0.05:
+            significance = 'Ada Perbedaan Signifikan Antar Mean Group'
+        else:
+            significance = 'Tidak Ada Perbedaan Signifikan Antar Mean Group'
 
-    # Check the p-value and provide interpretation
-    alpha = 0.05
-    if p_value < alpha:
-        st.write("Ada Perbedaan Mean rata-rata Monthly Purchase (Thou. IDR) antara kelompok 'Yes' dan 'No' (Tolak H0)")
-    else:
-        st.write("Tidak Ada Perbedaan Mean rata-rata Monthly Purchase (Thou. IDR) antara kelompok 'Yes' dan 'No' (Gagal Tolak H0)")
+        # Store ANOVA results for the predictor
+        anova_result = {
+            'Predictor': predictor,
+            'F-Statistic': f_statistic,
+            'P-Value': p_value,
+            'Difference': significance
+        }
+        anova_results.append(anova_result)
 
-    # ANOVA for CLTV (Predicted Thou. IDR)
+    # Create a DataFrame from ANOVA results
+    anova_df = pd.DataFrame(anova_results)
+
+    # Display ANOVA results
+    st.dataframe(anova_df)
     
-    # Example data
-    churn_labels = df['Churn Label'].unique()
+    
+    # Post-Hoc Test
+    df.rename(columns={
+    'Tenure Months': 'Tenure_Months',
+    'Monthly Purchase (Thou. IDR)': 'Monthly_Purchase',
+    'CLTV (Predicted Thou. IDR)': 'CLTV',
+    'Device Class': 'Device_Class',
+    'Games Product': 'Games_Product',
+    'Music Product': 'Music_Product',
+    'Education Product': 'Education_Product',
+    'Call Center': 'Call_Center',
+    'Video Product': 'Video_Product',
+    'Use MyApp': 'Use_MyApp',
+    'Payment Method': 'Payment_Method',
+    'Churn Label': 'Churn_Label'
 
-    # Create a list of data for each group
-    groups_data_cltv = [df[df['Churn Label'] == label]['CLTV (Predicted Thou. IDR)'] for label in churn_labels]
+    }, inplace=True)
+    
+    st.header('Exploring Significances of Groups within Categorical variables')
+    
+    st.image('phoc.jpg',width=400)
 
-    # Perform ANOVA
-    f_statistic_cltv, p_value_cltv = f_oneway(*groups_data_cltv)
+    st.write("Post-hoc test, dalam konteks statistik, merupakan langkah lanjutan setelah analisis ANOVA untuk mengeksplorasi perbedaan di antara beberapa kelompok yang telah menunjukkan perbedaan signifikan. Ini seperti detektif yang melakukan penyelidikan lebih lanjut setelah menemukan perbedaan antar kelompok dalam ANOVA. Misalnya, jika ANOVA menunjukkan adanya perbedaan signifikan antara beberapa kelompok dalam sebuah studi, post-hoc test akan membantu mengidentifikasi pasangan kelompok mana yang secara khusus berbeda satu sama lain. Post-hoc test memberikan wawasan lebih mendalam, membantu memahami lebih jauh mengenai perbedaan spesifik antar kelompok yang tidak bisa ditentukan hanya dengan ANOVA saja.")
+    
+    st.subheader("Games Product")
+    # Perform ANOVA 1
+    model = ols('CLTV ~ Games_Product', data=df).fit()
+    anova_table = sm.stats.anova_lm(model, typ=2)
 
-    # Display the results in Streamlit
-    st.subheader("Variable: CLTV (Predicted Thou. IDR) based on Churn Label")
-    st.write(f"ANOVA F-statistic: {f_statistic_cltv}")
-    st.write(f"P-value: {p_value_cltv}")
+    # Perform Tukey's HSD test for multiple comparisons
+    tukey_results = sm.stats.multicomp.pairwise_tukeyhsd(df['CLTV'], df['Games_Product'])
 
-    # Check the p-value and provide interpretation
-    alpha_cltv = 0.05
-    if p_value_cltv < alpha_cltv:
-        st.write("Ada Perbedaan Mean rata-rata CLTV (Predicted Thou. IDR) antara kelompok 'Yes' dan 'No' (Tolak H0)")
-    else:
-        st.write("Tidak Ada Perbedaan Mean rata-rata CLTV (Predicted Thou. IDR) antara kelompok 'Yes' dan 'No' (Gagal Tolak H0)")
+    # Convert Tukey's test results to DataFrame
+    tukey_df = pd.DataFrame(data=tukey_results._results_table.data[1:], columns=tukey_results._results_table.data[0])
 
+    # Add a column for significance based on a significance level of 0.05
+    tukey_df['Significance'] = tukey_df['p-adj'].apply(lambda x: 'Ada Perbedaan Signifikan Antar Mean Group' if x < 0.05 else 'Tidak Ada Perbedaan Signifikan Antar Mean Group')
+
+    # Display the Tukey's test results including significance column
+    tukey_df
+
+    with st.expander("For More Insights"):
+            st.markdown("""
+            <style>
+            .justify {
+                text-align: justify;
+            }
+            </style>
+            <div class="justify">
+            
+            - **Kelompok 'No' dan 'No Internet Service':** Terdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 0 dan 1 memiliki dampak yang signifikan pada hasil.
+            
+            - **Kelompok 'No' dan 'Yes':** erdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 0 dan 2 memiliki dampak yang signifikan pada hasil.
+            
+            - **Kelompok 'No Internet Service' dan 'Yes':** Terdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 1 dan 2 memiliki dampak yang signifikan pada hasil.
+            
+            Dengan demikian, hasil post-hoc menunjukkan bahwa ketiga kelompok tersebut memiliki perbedaan yang signifikan dalam variabel Games Product terkait dengan hasil yang diamati.
+            </div>
+        """, unsafe_allow_html=True)
+
+    
+    st.subheader("Music Product")
+    # Perform ANOVA 2
+    model = ols('CLTV ~ Music_Product', data=df).fit()
+    anova_table = sm.stats.anova_lm(model, typ=2)
+
+    # Perform Tukey's HSD test for multiple comparisons
+    tukey_results = sm.stats.multicomp.pairwise_tukeyhsd(df['CLTV'], df['Music_Product'])
+
+    # Convert Tukey's test results to DataFrame
+    tukey_df = pd.DataFrame(data=tukey_results._results_table.data[1:], columns=tukey_results._results_table.data[0])
+
+    # Add a column for significance based on a significance level of 0.05
+    tukey_df['Significance'] = tukey_df['p-adj'].apply(lambda x: 'Ada Perbedaan Signifikan Antar Mean Group' if x < 0.05 else 'Tidak Ada Perbedaan Signifikan Antar Mean Group')
+
+    # Display the Tukey's test results including significance column
+    tukey_df
+    with st.expander("For More Insights"):
+            st.markdown("""
+            <style>
+            .justify {
+                text-align: justify;
+            }
+            </style>
+            <div class="justify">
+            
+            - **Kelompok 'No' dan 'No Internet Service':** Terdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 0 dan 1 memiliki dampak yang signifikan pada hasil.
+            
+            - **Kelompok 'No' dan 'Yes':** erdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 0 dan 2 memiliki dampak yang signifikan pada hasil.
+            
+            - **Kelompok 'No Internet Service' dan 'Yes':** Terdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 1 dan 2 memiliki dampak yang signifikan pada hasil.
+            
+            Dengan demikian, hasil post-hoc menunjukkan bahwa ketiga kelompok tersebut memiliki perbedaan yang signifikan dalam variabel Music Product terkait dengan hasil yang diamati.
+            </div>
+        """, unsafe_allow_html=True)
+    # Perform ANOVA 3
+
+    st.subheader("Education Product")
+    # Perform ANOVA 2
+    model = ols('CLTV ~ Education_Product', data=df).fit()
+    anova_table = sm.stats.anova_lm(model, typ=2)
+
+    # Perform Tukey's HSD test for multiple comparisons
+    tukey_results = sm.stats.multicomp.pairwise_tukeyhsd(df['CLTV'], df['Education_Product'])
+
+    # Convert Tukey's test results to DataFrame
+    tukey_df = pd.DataFrame(data=tukey_results._results_table.data[1:], columns=tukey_results._results_table.data[0])
+
+    # Add a column for significance based on a significance level of 0.05
+    tukey_df['Significance'] = tukey_df['p-adj'].apply(lambda x: 'Ada Perbedaan Signifikan Antar Mean Group' if x < 0.05 else 'Tidak Ada Perbedaan Signifikan Antar Mean Group')
+
+    # Display the Tukey's test results including significance column
+    tukey_df
+    
+    with st.expander("For More Insights"):
+            st.markdown("""
+            <style>
+            .justify {
+                text-align: justify;
+            }
+            </style>
+            <div class="justify">
+            
+            - **Kelompok 'No' dan 'No Internet Service':** Terdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 0 dan 1 memiliki dampak yang signifikan pada hasil.
+            
+            - **Kelompok 'No' dan 'Yes':** erdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 0 dan 2 memiliki dampak yang signifikan pada hasil.
+            
+            - **Kelompok 'No Internet Service' dan 'Yes':** Terdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 1 dan 2 memiliki dampak yang signifikan pada hasil.
+            
+            Dengan demikian, hasil post-hoc menunjukkan bahwa ketiga kelompok tersebut memiliki perbedaan yang signifikan dalam variabel Education Product terkait dengan hasil yang diamati.
+            </div>
+        """, unsafe_allow_html=True)
+    
+    st.subheader("Call Center")
+    # perform ANOVA 4
+    model = ols('CLTV ~ Call_Center', data=df).fit()
+    anova_table = sm.stats.anova_lm(model, typ=2)
+
+    # Perform Tukey's HSD test for multiple comparisons
+    tukey_results = sm.stats.multicomp.pairwise_tukeyhsd(df['CLTV'], df['Call_Center'])
+
+    # Convert Tukey's test results to DataFrame
+    tukey_df = pd.DataFrame(data=tukey_results._results_table.data[1:], columns=tukey_results._results_table.data[0])
+
+    # Add a column for significance based on a significance level of 0.05
+    tukey_df['Significance'] = tukey_df['p-adj'].apply(lambda x: 'Ada Perbedaan Signifikan Antar Mean Group' if x < 0.05 else 'Tidak Ada Perbedaan Signifikan Antar Mean Group')
+
+    # Display the Tukey's test results including significance column
+    tukey_df
+    
+    
+    with st.expander("For More Insights"):
+            st.markdown("""
+            <style>
+            .justify {
+                text-align: justify;
+            }
+            </style>
+            <div class="justify">
+            
+            - **Kelompok 'No' dan 'Yes':** Terdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 0 dan 1 memiliki dampak yang signifikan pada hasil.
+            
+            Dengan demikian, hasil post-hoc menunjukkan bahwa ketiga kelompok tersebut memiliki perbedaan yang signifikan dalam variabel Call Center terkait dengan hasil yang diamati.
+            </div>
+        """, unsafe_allow_html=True)
+    
+    st.subheader("Video Product")
+    # perform ANOVA 5
+    
+    
+    model = ols('CLTV ~ Video_Product', data=df).fit()
+    anova_table = sm.stats.anova_lm(model, typ=2)
+
+    # Perform Tukey's HSD test for multiple comparisons
+    tukey_results = sm.stats.multicomp.pairwise_tukeyhsd(df['CLTV'], df['Video_Product'])
+
+    # Convert Tukey's test results to DataFrame
+    tukey_df = pd.DataFrame(data=tukey_results._results_table.data[1:], columns=tukey_results._results_table.data[0])
+
+    # Add a column for significance based on a significance level of 0.05
+    tukey_df['Significance'] = tukey_df['p-adj'].apply(lambda x: 'Ada Perbedaan Signifikan Antar Mean Group' if x < 0.05 else 'Tidak Ada Perbedaan Signifikan Antar Mean Group')
+
+    # Display the Tukey's test results including significance column
+    tukey_df
+    
+    with st.expander("For More Insights"):
+            st.markdown("""
+            <style>
+            .justify {
+                text-align: justify;
+            }
+            </style>
+            <div class="justify">
+            
+            Hasil dari analisis post-hoc pada variabel Payment Method menunjukkan perbedaan signifikan antara beberapa kelompok:
+            
+            - **Kelompok 'No' dan 'No Internet Service':** Terdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 0 dan 1 memiliki dampak yang signifikan pada hasil.
+            
+            - **Kelompok 'No' dan 'Yes':** erdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 0 dan 2 memiliki dampak yang signifikan pada hasil.
+            
+            - **Kelompok 'No Internet Service' dan 'Yes':** Terdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 1 dan 2 memiliki dampak yang signifikan pada hasil.
+            
+             Dengan demikian, hasil post-hoc menunjukkan bahwa ketiga kelompok tersebut memiliki perbedaan yang signifikan dalam variabel Video Product terkait dengan hasil yang diamati.
+            </div>
+        """, unsafe_allow_html=True)
+    
+    st.subheader("Use MyApp")
+    # perform ANOVA 6
+    model = ols('CLTV ~ Use_MyApp', data=df).fit()
+    anova_table = sm.stats.anova_lm(model, typ=2)
+
+    # Perform Tukey's HSD test for multiple comparisons
+    tukey_results = sm.stats.multicomp.pairwise_tukeyhsd(df['CLTV'], df['Use_MyApp'])
+
+    # Convert Tukey's test results to DataFrame
+    tukey_df = pd.DataFrame(data=tukey_results._results_table.data[1:], columns=tukey_results._results_table.data[0])
+
+    # Add a column for significance based on a significance level of 0.05
+    tukey_df['Significance'] = tukey_df['p-adj'].apply(lambda x: 'Ada Perbedaan Signifikan Antar Mean Group' if x < 0.05 else 'Tidak Ada Perbedaan Signifikan Antar Mean Group')
+
+    # Display the Tukey's test results including significance column
+    tukey_df
+    
+    with st.expander("For More Insights"):
+            st.markdown("""
+            <style>
+            .justify {
+                text-align: justify;
+            }
+            </style>
+            <div class="justify">
+            
+            - **Kelompok 'No' dan 'No Internet Service':** Terdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 0 dan 1 memiliki dampak yang signifikan pada hasil.
+            
+            - **Kelompok 'No' dan 'Yes':** erdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 0 dan 2 memiliki dampak yang signifikan pada hasil.
+            
+            - **Kelompok 'No Internet Service' dan 'Yes':** Terdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 1 dan 2 memiliki dampak yang signifikan pada hasil.
+            
+            Dengan demikian, hasil post-hoc menunjukkan bahwa ketiga kelompok tersebut memiliki perbedaan yang signifikan dalam variabel Use MyApp terkait dengan hasil yang diamati.
+            </div>
+        """, unsafe_allow_html=True)
+    
+    st.subheader("Payment Method")
+    # perform ANOVA 7
+    
+    model = ols('CLTV ~ Payment_Method', data=df).fit()
+    anova_table = sm.stats.anova_lm(model, typ=2)
+
+    # Perform Tukey's HSD test for multiple comparisons
+    tukey_results = sm.stats.multicomp.pairwise_tukeyhsd(df['CLTV'], df['Payment_Method'])
+
+    # Convert Tukey's test results to DataFrame
+    tukey_df = pd.DataFrame(data=tukey_results._results_table.data[1:], columns=tukey_results._results_table.data[0])
+
+    # Add a column for significance based on a significance level of 0.05
+    tukey_df['Significance'] = tukey_df['p-adj'].apply(lambda x: 'Ada Perbedaan Signifikan Antar Mean Group' if x < 0.05 else 'Tidak Ada Perbedaan Signifikan Antar Mean Group')
+
+    # Display the Tukey's test results including significance column
+    tukey_df
+    
+    with st.expander("For More Insights"):
+            st.markdown("""
+            <style>
+            .justify {
+                text-align: justify;
+            }
+            </style>
+            <div class="justify">
+            
+            - **Kelompok 'Credit' dan 'Digital Wallet':** Terdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 0 dan 2 memiliki dampak yang signifikan pada hasil yang diamati.
+            
+            - **Kelompok 'Credit' dan 'Pulsa':** erdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 0 dan 3 memiliki dampak yang signifikan pada hasil.
+            
+            - **Kelompok 'Debit' dan 'Digital Wallet':** Terdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 1 dan 2 memiliki dampak yang signifikan pada hasil.
+            
+            - **Kelompok 'Debit' dan 'Pulsa':** Terdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 1 dan 3 memiliki dampak yang signifikan pada hasil.
+            
+            Namun, **tidak ada perbedaan signifikan** antara kelompok **'Credit' (0) dan 'Debit'(1)**, serta antara kelompok **'Digital Wallet'(2) dan 'Pulsa(3)**.
+            </div>
+        """, unsafe_allow_html=True)
+    
+    
+    
+        
 
         
 def model_tab():
