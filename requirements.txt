@@ -91,6 +91,7 @@ scikit-learn
 imbalanced-learn
 statsmodels
 ipython
+openpyxl
 openai
 # pyarc==1.0.5
 # pyarc
