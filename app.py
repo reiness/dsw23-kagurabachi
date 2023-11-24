@@ -51,8 +51,8 @@ from openai import OpenAI
 
 # Set page configuration
 st.set_page_config(
-    page_title="Data Science Week",
-    page_icon="✅",
+    page_title="Kagura-Bachi",
+    page_icon="icon.png",
     layout="wide",
 )
 
@@ -403,12 +403,12 @@ Jangan memberi perintah yang terlalu susah karena bisa saja Kagura-chan malah **
     ]
 
     options2 = [
-        'Steady Low-to-Mid Spenders (~ IDR 94,580)',
-        'Semi-Consistent Moderate Spenders (~ IDR 95,120)',
-        'Consistent Moderate Spenders (~ IDR 95,310)',
-        'Consistently High Spenders (~ IDR 95,530)',
-        'Engaged High Spenders (~ IDR 97,690)',
-        'Potential Value Seekers (~ IDR 101,860)'
+        'Steady Low-to-Mid Spenders (~ IDR 94,580/month)',
+        'Semi-Consistent Moderate Spenders (~ IDR 95,120/month)',
+        'Consistent Moderate Spenders (~ IDR 95,310/month)',
+        'Consistently High Spenders (~ IDR 95,530/month)',
+        'Engaged High Spenders (~ IDR 97,690/month)',
+        'Potential Value Seekers (~ IDR 101,860/month)'
     ]
 
     rekom1, rekom2 = st.columns([2,2]) 
