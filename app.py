@@ -464,7 +464,7 @@ Jangan memberi perintah yang terlalu susah karena bisa saja Kagura-chan malah **
 
 
 def statistic_test_tab():
-    st.header('Statistic Tests')
+    st.header('Fundamentals')
     st.write('---')
     
     with st.container():
@@ -795,7 +795,7 @@ def statistic_test_tab():
             
             - **Kelompok 'No' dan 'No Internet Service':** Terdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 0 dan 1 memiliki dampak yang signifikan pada hasil.
             
-            - **Kelompok 'No' dan 'Yes':** erdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 0 dan 2 memiliki dampak yang signifikan pada hasil.
+            - **Kelompok 'No' dan 'Yes':** Terdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 0 dan 2 memiliki dampak yang signifikan pada hasil.
             
             - **Kelompok 'No Internet Service' dan 'Yes':** Terdapat perbedaan signifikan antara mean group. Perbedaan antara kelompok 1 dan 2 memiliki dampak yang signifikan pada hasil.
             
@@ -848,7 +848,7 @@ def statistic_test_tab():
 
         
 def model_tab():
-    st.header('Model')
+    st.header('Predictive')
 
     # Load data
     df = pd.read_excel('data.xlsx')
@@ -967,14 +967,14 @@ def model_tab():
 
 
 # Create the sidebar for content selection
-selected_tab = st.sidebar.selectbox("Select a tab:", ["EDA", "Chat", "Statistic Test", "Model"])
+selected_tab = st.sidebar.selectbox("Select a tab:", ["Kagura & Bachi","Visual Analysis", "Fundamentals", "Predictive"])
 
 # Display content based on the selected tab
-if selected_tab == "EDA":
-    eda_tab()
-elif selected_tab == "Chat":
+if selected_tab == "Kagura & Bachi":
     chat_tab()
-elif selected_tab == "Statistic Test":
+elif selected_tab == "Visual Analysis":
+    eda_tab()
+elif selected_tab == "Fundamentals":
     statistic_test_tab()
 else:
     model_tab()
