@@ -36,6 +36,7 @@ import statsmodels.api as sm
 from statsmodels.formula.api import ols
 import subprocess
 subprocess.run(["pip", "install", "--upgrade", "pandasai"])
+subprocess.run(["pip", "install", "--upgrade", "openai"])
 # subprocess.run(["from", st.secrets['SSS'], "import", st.secrets['SSSSS']])
 
 # secret_value1 = st.secrets['s1']
