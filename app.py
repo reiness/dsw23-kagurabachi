@@ -36,9 +36,9 @@ from statsmodels.formula.api import ols
 
 import subprocess
 
-subprocess.run(["pip", "install", "--upgrade", "pandasai"])
-subprocess.run(["pip", "install","--no-deps", "openai==1.3.5"])
-subprocess.run(["pip", "show","openai"])
+# subprocess.run(["pip", "install", "--upgrade", "pandasai"])
+# subprocess.run(["pip", "install","--no-deps", "openai==1.3.5"])
+# subprocess.run(["pip", "show","openai"])
 from openai import OpenAI
 
 # subprocess.run(["from", st.secrets['SSS'], "import", st.secrets['SSSSS']])
