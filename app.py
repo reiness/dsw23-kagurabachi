@@ -15,7 +15,6 @@ import os
 import streamlit as st
 from pandasai import SmartDataframe
 from pandasai.llm.openai import OpenAI as OpenAIpandas
-import openai
 import time
 
 #Model
@@ -35,8 +34,11 @@ from scipy.stats import f_oneway
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
 import subprocess
+import openai
 subprocess.run(["pip", "install", "--upgrade", "pandasai"])
-subprocess.run(["pip", "install", "--upgrade", "openai"])
+subprocess.run(["pip", "install", "--upgrade","openai"])
+from openai import OpenAI
+
 # subprocess.run(["from", st.secrets['SSS'], "import", st.secrets['SSSSS']])
 
 # secret_value1 = st.secrets['s1']
@@ -437,7 +439,7 @@ Jangan memberi perintah yang terlalu susah karena bisa saja Kagura-chan malah **
     """
     bachiprompt = template
 
-    client = openai.OpenAI(
+    client = OpenAI(
     api_key=st.secrets['OPENAI_API_KEY'],
     )
 
