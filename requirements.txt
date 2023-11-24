@@ -92,7 +92,7 @@ imbalanced-learn
 statsmodels
 ipython
 openpyxl
-openai==1.3.5 --no-deps
+# openai==1.3.5
 # pyarc==1.0.5
 # pyarc
 # fim-python==1.0.0
