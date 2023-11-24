@@ -34,9 +34,9 @@ from scipy.stats import f_oneway
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
 import subprocess
-import openai
+# import openai
 subprocess.run(["pip", "install", "--upgrade", "pandasai"])
-subprocess.run(["pip", "install", "--upgrade","openai"])
+# subprocess.run(["pip", "install", "--upgrade","openai"])
 from openai import OpenAI
 
 # subprocess.run(["from", st.secrets['SSS'], "import", st.secrets['SSSSS']])
