@@ -14,7 +14,7 @@ import os
 import streamlit as st
 from pandasai import SmartDataframe
 from pandasai.llm.openai import OpenAI as OpenAIpandas
-from openai import OpenAI 
+import openai
 import time
 
 #Model
@@ -429,7 +429,7 @@ Jangan memberi perintah yang terlalu susah karena bisa saja Kagura-chan malah **
     """
     bachiprompt = template
 
-    client = OpenAI(
+    client = openai.OpenAI(
     api_key=st.secrets['OPENAI_API_KEY'],
     )
 
