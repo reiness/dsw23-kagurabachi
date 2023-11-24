@@ -1,3 +1,4 @@
+
 import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
@@ -35,7 +36,13 @@ import statsmodels.api as sm
 from statsmodels.formula.api import ols
 import subprocess
 subprocess.run(["pip", "install", "--upgrade", "pandasai"])
-# subprocess.run(["from", "openai", "import", "OpenAI", "as","ai"])
+# subprocess.run(["from", st.secrets['SSS'], "import", st.secrets['SSSSS']])
+
+# secret_value1 = st.secrets['s1']
+# secret_value2 = st.secrets['s2']
+
+# from rahasia import secret_value1, secret_value2
+# from secret_value1 import secret_value2
 
 # Set page configuration
 st.set_page_config(
@@ -447,12 +454,12 @@ Jangan memberi perintah yang terlalu susah karena bisa saja Kagura-chan malah **
     bachirekom = st.button("Ask Bachi's recommendation")
     if bachirekom:
         with st.spinner("Bachi is analyzing your request (⌐■_■), please hold on for a sec..."):
+            time.sleep(2)  # Simulate a time-consuming operation
             if bachiii.choices:
                 bac_out = bachiii.choices[0].message.content
             else:
                 bac_out = None
             # Delay for demonstration purposes
-            time.sleep(2)  # Simulate a time-consuming operation
             
         st.write(bac_out if bac_out is not None else '')
 
