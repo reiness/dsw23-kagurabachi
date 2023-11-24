@@ -33,11 +33,11 @@ import seaborn as sns
 from scipy.stats import f_oneway
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
-import subprocess
-import openai
-subprocess.run(["pip", "install", "--upgrade", "pandasai"])
-subprocess.run(["pip", "install", "openai==1.3.5","--no-deps"])
 from openai import OpenAI
+import subprocess
+# import openai
+subprocess.run(["pip", "install", "--upgrade", "pandasai"])
+# subprocess.run(["pip", "install", "openai==1.3.5","--no-deps"])
 
 # subprocess.run(["from", st.secrets['SSS'], "import", st.secrets['SSSSS']])
 
